@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><font color="#2e8b57">激活成功</font></title>
+    <script type="text/javascript">
+        /*settimeout设置过期时间*/
+        function Gologin() {
+            setTimeout(function () {
+                window.open("${loginPath}")
+            },5000)
+        }
+    </script>
+</head>
+<body onload="Gologin()">
+    <h2>激活成功了</h2>
+    <a href="${loginPath}">点击跳转到登录页面.......5秒后自动跳转</a>
+</body>
+</html>
