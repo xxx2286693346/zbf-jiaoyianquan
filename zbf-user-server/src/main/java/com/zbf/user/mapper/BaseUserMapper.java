@@ -17,4 +17,8 @@ import org.apache.ibatis.annotations.Update;
 @Mapper
 public interface BaseUserMapper extends BaseMapper<BaseUser> {
 
+    boolean adduserrole(long id);
+
+    BaseUser maxid();
+
 }

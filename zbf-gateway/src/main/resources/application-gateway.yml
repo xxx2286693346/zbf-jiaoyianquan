@@ -15,10 +15,10 @@ spring:
            filters:
              #表示去掉api前缀
              - StripPrefix=1
-             - name: Hystrix
-               args:
-                    name: fallbackdd
-                    fallbackUri: 'forward:/fallback'
+             #- name: Hystrix
+               #args:
+                    #name: fallbackdd
+                    #fallbackUri: 'forward:/fallback'
         #oauth授权服务器zbf-auth-core
          - id: zbf-user-server
            uri: lb://zbf-user-server
@@ -27,9 +27,20 @@ spring:
            filters:
              #表示去掉api前缀
              - StripPrefix=1
-             - name: Hystrix
-               args:
-                   name: fallbackdd
-                   fallbackUri: 'forward:/fallback'
+             #- name: Hystrix
+               #args:
+                   #name: fallbackdd
+                   #fallbackUri: 'forward:/fallback'
+         - id: zbf-menu-server
+           uri: lb://zbf-menu-server
+           predicates:
+           - Path=/menu/**
+           filters:
+               #表示去掉api前缀
+             - StripPrefix=1
+             #- name: Hystrix
+               #args:
+                   #name: fallbackdd
+                   #fallbackUri: 'forward:/fallback'
 hystrix.command.fallbackdd.execution.isolation.thread.timeoutInMilliseconds: 50000
 

@@ -62,12 +62,20 @@ public class BaseUserController {
 
 
 
+    /**
+     * @Author 袁成龙
+     * @Description //TODO * @param tel
+    * @param code
+     * @Date 8:26 2020/9/16
+     * @Param 
+     * @return 
+     **/
     @RequestMapping("/register")
     public ResponseResult test01(String tel,String code){
 
         System.out.println("tel=="+tel+"code=="+code);
-     //   String s = redisTemplate.opsForValue().get("codes");
-      //  System.out.println("登录的验证"+s);
+        //String s = redisTemplate.opsForValue().get("codes");
+       // System.out.println("登录的验证"+s);
         if("1234".equals(code)){
             responseResult.setCode(1006);
             responseResult.setSuccess("1234");
@@ -146,13 +154,17 @@ public class BaseUserController {
             System.out.println("tel=="+tel+"code=="+code);
             String s = redisTemplate.opsForValue().get("codes");
             System.out.println("登录的验证"+s);
+            if(s==null){
+                s="1";
+            }
             if(s.equals(code)){
                 responseResult.setCode(1006);
                 responseResult.setSuccess(s);
                 redisTemplate.delete("codes");
                 return responseResult;
             }else {
-                return null;
+                responseResult.setCode(1004);
+                return responseResult;
             }
         }
 

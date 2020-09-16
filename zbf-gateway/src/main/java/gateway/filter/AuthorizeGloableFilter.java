@@ -224,9 +224,10 @@ public class AuthorizeGloableFilter implements GlobalFilter,Ordered {
 
         //获取用户的登录名信息
         String loginName=jsonObject.getString("info");
-        System.out.println("获取用户名信息");
+        System.out.println("获取用户名信息"+loginName);
         //根据登录名获取用户的角色权限
         Object uinfo = redisTemplate.opsForHash().get("user-auth", loginName);
+        System.out.println("info="+uinfo);
         if(uinfo==null){
             //返回重新登录
             ResponseResult responseResult = ResponseResult.getResponseResult();

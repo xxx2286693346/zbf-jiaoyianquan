@@ -48,9 +48,17 @@ public class ActivateController{
 
 
 
+    /**
+     * @Author 袁成龙
+     * @Description 这个类是用来添加注册的用户的
+     * @Date 18:11 2020/9/16
+     * @Param 一个用户的实体
+     * @return 返回的是一个ResponseResult一个自己封装的用来返回的类
+     **/
     @RequestMapping("/Add")
     public ResponseResult add(@RequestBody BaseUser baseUser){
         System.out.println("!!!)))!!!==================");
+        //为了保证email和loginname不可以有重复的所以保证这两个值为唯一,所以判断
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("email",baseUser.getEmail());
         BaseUser one = iBaseUserService.getOne(queryWrapper);
@@ -60,17 +68,21 @@ public class ActivateController{
         BaseUser one1 = iBaseUserService.getOne(queryWrapper1);
         System.out.println(baseUser);
         System.out.println("------"+one);
+        //查看db里是否有相同的email如果有返回1005提示有相同的用户名
         if(one!=null){
             System.out.println("================1");
             responseResult.setCode(1005);
             return responseResult;
+            //判断是否有相同的登录名如果有返回1004提示有相同的登录名
         }else if(one1!=null){
             System.out.println("================2");
             responseResult.setCode(1004);
             return responseResult;
         }else{
+            //如果用户名和email都没有的情况下执行添加操作
             System.out.println("==================3");
             String s = RandomUtil.randomNumber(4);
+            //MD5加密
             String encodePass= Md5.encode(baseUser.getPassWord()+s, "MD5");
             System.out.println(encodePass);
             BaseUser user = new BaseUser(null,
@@ -82,7 +94,12 @@ public class ActivateController{
                     baseUser.getEmail(),
                     s,0);
             boolean save = iBaseUserService.save(user);
+            //如果执行成功
             if(save){
+                BaseUser maxid1 = iBaseUserService.maxid();
+                boolean adduserrole = iBaseUserService.adduserrole(maxid1.getId());
+                System.out.println("添加了中间表等操作"+adduserrole);
+                //通过异步线程来操作发邮件的这项操作
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -90,6 +107,7 @@ public class ActivateController{
                     }
                 });
                 thread.start();
+                //如果成功提示1006提示返回成功
                 responseResult.setCode(1006);
                 return responseResult;
             }else{

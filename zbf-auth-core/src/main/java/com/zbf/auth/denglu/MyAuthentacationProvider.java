@@ -70,24 +70,32 @@ public class MyAuthentacationProvider implements AuthenticationProvider {
         System.out.println("pasword" + password);
 
         if(isPhone(userName)){
-            Map<String, Object> userByPhone = userDao.getUserByPhone(userName);
-            int status = (int)userByPhone.get("status");
-            if(status==0){
-                throw new BadCredentialsException("用户未激活请去激活");
+            if(userName!=null&&userName!=""){
+                Map<String, Object> userByPhone = userDao.getUserByPhone(userName);
+                int status = (int)userByPhone.get("status");
+                if(status==0){
+                    throw new BadCredentialsException("用户未激活请去激活");
+                }
             }
+
         }else if(StringUtil.gitEmail(userName)){
-            Map<String, Object> userByPhone = userDao.getUserByEmail(userName);
-            int status = (int)userByPhone.get("status");
-            if(status==0){
-                throw new BadCredentialsException("用户未激活请去激活");
+            if(userName!=null&&userName!=""){
+                Map<String, Object> userByPhone = userDao.getUserByEmail(userName);
+                int status = (int)userByPhone.get("status");
+                if(status==0){
+                    throw new BadCredentialsException("用户未激活请去激活");
+                }
             }
+
         }else{
+            if(userName!=null&&userName!=""){
                 Map<String, Object> userByUserName = userDao.getUserByUserName(userName);
                 int status = (int)userByUserName.get("status");
                 System.out.println("status值"+status);
                 if(status==0){
                     throw new BadCredentialsException("用户未激活请去激活");
                 }
+            }
         }
 
 
@@ -141,40 +149,47 @@ public class MyAuthentacationProvider implements AuthenticationProvider {
                 throw new BadCredentialsException("验证码过期或者错误");
             }
         } else {
-            //删除激活的redis
-            redisTemplate.opsForHash().delete(AllRedisKey.ACTIVE_KEY.getKey(), userName);
-            //加密密码
-            Map<String, Object> userByUserName = userDao.getUserByUserName(userName);
-            System.out.println("+++++++++++++++++=="+userByUserName);
-            String encodePass = Md5.encode(password+userByUserName.get("salt"), "MD5");
-            //String encode = bCryptPasswordEncoder.encode(password);
-            //根据用户名获取用户的信息，这里调用根据用户名获取用户信息的UserServiceDetail类
-            UserDetails userDetails = myUserServiceDetail.loadUserByUsername(userName);
-            //根据获取的用户信息获取用户的密码
-            String password1 = userDetails.getPassword();
-            //说明：
-            //这里一步--》密码校验成功后可以加载一下 当前用户的权限角色 放入缓存中方便鉴权的时候使用
-            //userDetails.getAuthorities();//这里存储的是当前用户的角色信息
-            //缓存用户的权限信息
-            //查询所有的权限是不是在Redis，如果不在Redis的话，从数据库查询然后更新到Redis
-            if (!redisTemplate.hasKey("menuRole")) {
-                List<Map<String, String>> allMenus = menuDao.getAllMenus();
-                Map<String, String> urlRole = new HashMap<>();
-                allMenus.forEach(mapp -> {
-                    urlRole.put(mapp.get("urlRoleCode"), "");
-                });
-                //将所有的权限存入Redis
-                redisTemplate.opsForHash().putAll("menuRole", urlRole);
-                redisTemplate.expire("menuRole", 60 * 60, TimeUnit.SECONDS);
-            }
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userName, password1, userDetails.getAuthorities());
-            String string = JSON.toJSONString(usernamePasswordAuthenticationToken);
-            //将当前用户的角色信息 放入缓存大key user-auth 小key用户登录名authentication.getPrincipal()，value用户的角色列表
-            redisTemplate.opsForHash().put("user-auth", authentication.getPrincipal().toString(), string);
-            if (!encodePass.equals(password1)) {
+            if(userName!=null&&userName!=""&&password!=null&&password!=""){
+                //删除激活的redis
+                redisTemplate.opsForHash().delete(AllRedisKey.ACTIVE_KEY.getKey(), userName);
+                //加密密码
+                Map<String, Object> userByUserName = userDao.getUserByUserName(userName);
+                System.out.println("+++++++++++++++++=="+userByUserName);
+                String encodePass = Md5.encode(password+userByUserName.get("salt"), "MD5");
+                //String encode = bCryptPasswordEncoder.encode(password);
+                //根据用户名获取用户的信息，这里调用根据用户名获取用户信息的UserServiceDetail类
+                UserDetails userDetails = myUserServiceDetail.loadUserByUsername(userName);
+                //根据获取的用户信息获取用户的密码
+                String password1 = userDetails.getPassword();
+                //说明：
+                //这里一步--》密码校验成功后可以加载一下 当前用户的权限角色 放入缓存中方便鉴权的时候使用
+                //userDetails.getAuthorities();//这里存储的是当前用户的角色信息
+                //缓存用户的权限信息
+                //查询所有的权限是不是在Redis，如果不在Redis的话，从数据库查询然后更新到Redis
+                if (!redisTemplate.hasKey("menuRole")) {
+                    List<Map<String, String>> allMenus = menuDao.getAllMenus();
+                    Map<String, String> urlRole = new HashMap<>();
+                    allMenus.forEach(mapp -> {
+                        urlRole.put(mapp.get("urlRoleCode"), "");
+                    });
+                    //将所有的权限存入Redis
+                    redisTemplate.opsForHash().putAll("menuRole", urlRole);
+                    redisTemplate.expire("menuRole", 60 * 60, TimeUnit.SECONDS);
+                }
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userName, password1, userDetails.getAuthorities());
+                String string = JSON.toJSONString(usernamePasswordAuthenticationToken);
+                //将当前用户的角色信息 放入缓存大key user-auth 小key用户登录名authentication.getPrincipal()，value用户的角色列表
+                redisTemplate.opsForHash().put("user-auth", authentication.getPrincipal().toString(), string);
+                if (!encodePass.equals(password1)) {
+                    throw new BadCredentialsException("用户名或密码不正确");
+                }
+                return usernamePasswordAuthenticationToken;
+            }else{
                 throw new BadCredentialsException("用户名或密码不正确");
             }
-            return usernamePasswordAuthenticationToken;
+
+
+
 
         }
 

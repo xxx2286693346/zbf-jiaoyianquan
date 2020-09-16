@@ -14,6 +14,8 @@ import org.apache.ibatis.annotations.Update;
  * @since 2020-09-11
  */
 public interface IBaseUserService extends IService<BaseUser> {
+    boolean adduserrole(@Param("id") long id);
 
+    BaseUser maxid();
 
 }

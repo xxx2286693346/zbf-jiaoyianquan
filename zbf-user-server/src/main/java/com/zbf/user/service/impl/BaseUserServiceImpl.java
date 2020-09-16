@@ -18,4 +18,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUser> implements IBaseUserService {
 
+    @Autowired
+    private BaseUserMapper baseUserMapper;
+
+    @Override
+    public boolean adduserrole(long id) {
+        return baseUserMapper.adduserrole(id);
+    }
+
+    @Override
+    public BaseUser maxid() {
+        return baseUserMapper.maxid();
+    }
 }

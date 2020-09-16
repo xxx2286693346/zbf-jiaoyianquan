@@ -23,5 +23,13 @@
         id, version, userName, loginName, passWord, tel, buMen, salt, createTime, updateTime, sex, email
     </sql>
 
+    <insert id="adduserrole">
+        INSERT into base_user_role(roleId,userId) values(3,#{id})
+    </insert>
+
+    <select id="maxid" resultType="com.zbf.common.entity.my.BaseUser">
+        SELECT * FROM base_user ORDER BY id DESC LIMIT 0,1
+    </select>
+
 
 </mapper>

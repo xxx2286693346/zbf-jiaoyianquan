@@ -14,6 +14,7 @@
         <module>zbf-user-server</module>
         <module>zbf-common</module>
         <module>zdf-aliyun-login</module>
+        <module>zbf-menu-server</module>
     </modules>
 
     <properties>
