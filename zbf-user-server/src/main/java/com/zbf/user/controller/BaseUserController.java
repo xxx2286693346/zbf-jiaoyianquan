@@ -3,6 +3,8 @@ package com.zbf.user.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ycl.util.RandomUtil;
 import com.ycl.util.StringUtil;
 import com.zbf.common.entity.AllRedisKey;
@@ -14,6 +16,9 @@ import com.zbf.common.utils.*;
 import com.zbf.user.mapper.BaseUserMapper;
 import com.zbf.user.service.IBaseUserService;
 import com.zbf.user.service.ServiceYan;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,10 +31,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -54,6 +59,8 @@ public class BaseUserController {
 
     @Autowired
     IBaseUserService iBaseUserService;
+
+
 
     ResponseResult responseResult = new ResponseResult();
 
@@ -148,7 +155,14 @@ public class BaseUserController {
     }
 
 
-
+    /**
+     * @Author 袁成龙
+     * @Description //TODO 登录的时候和redis进行对比看看是否输入有误
+    * @param code
+     * @Date 14:35 2020/9/18
+     * @Param 
+     * @return 
+     **/
     @RequestMapping("/BiDui")
     public ResponseResult BiDui(String tel,String code){
             System.out.println("tel=="+tel+"code=="+code);
@@ -169,66 +183,32 @@ public class BaseUserController {
         }
 
 
+        /**
+         * @Author 袁成龙
+         * @Description //TODO 枚举类获得一个数组分别为sex{1,2}
+         * @Date 14:31 2020/9/18
+         * @Param 
+         * @return 
+         **/
     @RequestMapping("/Sex")
-    public SexEnum[] sexlist(){
+    public ResponseResult sexlist(){
         System.out.println("==================");
         SexEnum[] values = SexEnum.values();
-        return values;
+        responseResult.setResult(values);
+        return responseResult;
     }
 
 
 
 
-
-
-/*
-    @RequestMapping("/Add")
-    public ResponseResult add(@RequestBody BaseUser baseUser){
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("email",baseUser.getEmail());
-        BaseUser one = iBaseUserService.getOne(queryWrapper);
-
-        QueryWrapper queryWrapper1 = new QueryWrapper();
-        queryWrapper1.eq("loginName",baseUser.getLoginName());
-        BaseUser one1 = iBaseUserService.getOne(queryWrapper1);
-        System.out.println(baseUser);
-        System.out.println("------"+one);
-        if(one!=null){
-            System.out.println("================1");
-            responseResult.setCode(1005);
-            return responseResult;
-        }else if(one1!=null){
-            System.out.println("================2");
-            responseResult.setCode(1004);
-            return responseResult;
-        }else{
-            System.out.println("==================3");
-            String s = RandomUtil.randomNumber(4);
-            String encodePass= Md5.encode(baseUser.getPassWord()+s, "MD5");
-            System.out.println(encodePass);
-            BaseUser user = new BaseUser(null,
-                    baseUser.getUserName(),
-                    baseUser.getLoginName(),
-                    encodePass,
-                    baseUser.getTel(),
-                    baseUser.getSex(),
-                    baseUser.getEmail(),
-                    s,0);
-            boolean save = iBaseUserService.save(user);
-            if(save){
-                MailQQUtils.sendMessage("2286693346@qq.com",activateController.getActivate(actipaht,1*60*3000L,baseUser.getLoginName()),"NBA湖人招募信息","");
-                responseResult.setCode(1006);
-                return responseResult;
-            }else{
-                responseResult.setCode(1008);
-                return responseResult;
-            }
-        }
-    }
-*/
-
-
-
+    /** 
+     * @Author 袁成龙
+     * @Description //TODO 执行了用户的修改方法
+    * @param phone
+     * @Date 14:32 2020/9/18
+     * @Param 
+     * @return 
+     **/
     @RequestMapping("/Update")
     public boolean upda(String passWord,String phone){
         System.out.println("pass"+passWord+"ph"+phone);
@@ -251,79 +231,98 @@ public class BaseUserController {
         return PATTERN_PHONE.matcher(phone).matches();
     }
 
-
-    /**
-     * @Author 袁成龙
-     * @Description 生成一个激活链接
-     * @Date 19:40 2020/9/13
-     * @Param
-     * @return
-     **/
-   /* public String getActivate(String baseactivePath,long timeout,String loginName) {
-        //生成一个16位的激活码
-        String uuid16 = UID.getUUID16();
-        System.out.println(AllRedisKey.ACTIVE_KEY.getKey());
-        //存入redis
-        redisTemplate.opsForHash().put(AllRedisKey.ACTIVE_KEY.getKey(),loginName,uuid16);
-
-
-        System.out.println("===16位激活码"+uuid16);
-        StringBuffer stringBuffer = new StringBuffer(baseactivePath);
-        System.out.println("===获得的链接"+stringBuffer);
-        stringBuffer.append("?");
-        stringBuffer.append("active="+loginName+"=");
-        stringBuffer.append(JwtUtilsForOther.generateToken(uuid16,timeout));
-        String s = stringBuffer.toString();
-        System.out.println("===生成的完整的链接"+s);
-        //最后在赋为空值为保证下一次开始还是空
-        stringBuffer=null;
-        return s;
+   /*
+    * @Author 袁成龙
+    * @Description //TODO 用户信息的查询
+    * @Date 8:42 2020/9/18
+    * @Param
+    * @return
+    **/
+   @RequestMapping("listuser")
+   public ResponseResult iPage(Page page, BaseUser vo){
+       IPage<BaseUser> listpage = iBaseUserService.listpage(page,vo);
+       responseResult.setResult(listpage);
+       return responseResult;
+   }
+   
+   
+   
+   /**
+    * @Author 袁成龙
+    * @Description //TODO 根据用户的登录名查询所得的角色(登录名唯一)
+    * @Date 14:26 2020/9/18
+    * @Param 
+    * @return 
+    **/
+   @RequestMapping("findloginName")
+   public ResponseResult baseUser(String loginName){
+       BaseUser user = iBaseUserService.finloginName(loginName);
+       responseResult.setResult(user);
+       return responseResult;
+   }
+   
+   
+   /**
+    * @Author 袁成龙
+    * @Description //TODO 激活冻结
+    * @Date 18:39 2020/9/18
+    * @Param 
+    * @return 
+    */
+   @RequestMapping("updateStatus")
+    public ResponseResult result(Integer status,Integer id){
+        boolean updatestatus = iBaseUserService.updatestatus(status, id);
+        if(updatestatus){
+            responseResult.setCode(ResponseResultEnum.SECCESS.getCode());
+            return responseResult;
+        }else{
+            responseResult.setCode(ResponseResultEnum.FAILURE.getCode());
+            return responseResult;
+        }
     }
 
 
-    @RequestMapping("/userActivate")
-    public void getpath(HttpServletRequest request, HttpServletResponse response){
-        try {
-            String queryString = request.getQueryString();
-            System.out.println("?后面的拼接的路径" + queryString);
-            String[] split = queryString.split("=");
-            System.out.println(split[0]);
-            System.out.println(split[1]);
-            System.out.println(split[2]);
-            JSONObject jsonObject = JwtUtilsForOther.decodeJwtTocken(split[2]);
-            System.out.println("解密成功的的信息" + jsonObject);
-            System.out.println(AllRedisKey.ACTIVE_KEY.getKey());
-            String o = (String) redisTemplate.opsForHash().get(AllRedisKey.ACTIVE_KEY.getKey(), split[1]);
-            System.out.println(o);
-            if (o.equals(jsonObject.get("info"))) {
-                System.out.println("========ok");
-                QueryWrapper queryWrapper = new QueryWrapper();
-                queryWrapper.eq("loginName",split[1]);
-                BaseUser user = new BaseUser(1);
-                boolean update = iBaseUserService.update(user, queryWrapper);
-                System.out.println(update);
-                if (update) {
-                    responseResult.setSuccess(ResponseResultEnum.SECCESS.getMessage());
-                    responseResult.setCode(ResponseResultEnum.SECCESS.getCode());
-                    response.setContentType("text/html;charset=UTF-8");
-                    PrintWriter writer = response.getWriter();
-                    HashMap<String,Object> hashMap = new HashMap<>();
-                    hashMap.put("loginPath","http://localhost:8080");
-                    FreemarkerUtils.getStaticHtml(BaseUserController.class,
-                            "/activePath/",
-                            "OkgoLogin.html",hashMap, writer);
-                }
+    @RequestMapping("/execlist")
+    public ResponseResult responseResult(Integer num,String pai,String idcreatetime,String checklist){
+        String str = "";
+        String str1 = "";
+        List<BaseUser> getlist=null;
+        System.out.println("aa="+num+"bb="+pai+"cc="+idcreatetime+"dd="+checklist);
+        String[] split = checklist.split("=");
+        for (int i=0;i<split.length;i++){
+            if(i%2==0){
+                str+=split[i]+",";
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            //失败的信息一般不会存在
-            responseResult.setSuccess(ResponseResultEnum.FAILURE.getMessage());
-            responseResult.setCode(ResponseResultEnum.FAILURE.getCode());
+            if(i%2==1){
+                str1+=split[i]+",";
+            }
+        }
+        if(str.contains("rname")){
+            String ll = "";
+            String[] split1 = str.split(",");
+            for (int i=0;i<split1.length;i++){
+                if(split1[i].equals("rname")){
+                    System.out.println("包含了");
+                }else{
+                    ll+=split1[i]+",";
+                }
+
+            }
+            System.out.println(ll);
+            getlist=iBaseUserService.getlist(pai,idcreatetime,num,ll,"rname");
+        }else{
+            int length = str.length();
+            String substring = str.substring(0, length - 1);
+            getlist= iBaseUserService.getlist(pai,idcreatetime, num, substring,null);
         }
 
-    }*/
+        responseResult.setResult(getlist);
+        responseResult.setCode(1006);
+        responseResult.setSuccess(str);
+        responseResult.setMsg(str1);
+        return responseResult;
 
-
+    }
 
 
 

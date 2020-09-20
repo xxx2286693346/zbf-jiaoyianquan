@@ -66,6 +66,7 @@ public class BaseMenu implements Serializable {
     @TableField(exist = false)
     private String loginName;
 
-
+    @TableField(exist = false)
+    private Integer bid;
 
 }

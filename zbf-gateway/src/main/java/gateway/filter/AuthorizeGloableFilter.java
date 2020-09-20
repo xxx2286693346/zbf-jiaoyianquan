@@ -7,6 +7,7 @@ import com.zbf.common.entity.ResponseResult;
 import com.zbf.common.exception.AllStatusEnum;
 import com.zbf.common.utils.JwtUtils;
 import io.jsonwebtoken.ExpiredJwtException;
+import org.bouncycastle.crypto.signers.ISOTrailers;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,22 +36,23 @@ import java.util.regex.Pattern;
  * 描述:
  */
 @Component
-public class AuthorizeGloableFilter implements GlobalFilter,Ordered {
+public class AuthorizeGloableFilter implements GlobalFilter, Ordered {
 
-   // private static final Pattern PATTERN_PHONE = Pattern.compile("^-?\\d+(\\.\\d+)?$");
+    // private static final Pattern PATTERN_PHONE = Pattern.compile("^-?\\d+(\\.\\d+)?$");
 
 
     /**
      * 无需登录认证的路径  这是Map结构的数据的获取方式
      */
     @Value("#{${spring.noNeedLoginPath}}")
-    private Map<String,String> noNeedLoginPath;
+    private Map<String, String> noNeedLoginPath;
 
     @Autowired
-    private RedisTemplate<String,String> redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
 
     /**
      * 判断登录以及Token是否过期、重新生成Token的逻辑
+     *
      * @param exchange
      * @param chain
      * @return
@@ -60,15 +62,15 @@ public class AuthorizeGloableFilter implements GlobalFilter,Ordered {
 
         //判断当前请求的路径是不是需要登录，如果不需要则会直接通过返回一个Mono 否则的话返回一个null
         Mono<Void> needToLogin = this.isNeedToLogin(exchange, chain);
-        if(needToLogin!=null){
+        if (needToLogin != null) {
             return needToLogin;
         }
         //获取请求头中的Token串
         List<String> tokenList = exchange.getRequest().getHeaders().get("token");
         //检测是否有Token信息
-        Mono<Void> hasToken = this.hasToken(tokenList,exchange);
-        if(hasToken!=null){
-            return  hasToken;
+        Mono<Void> hasToken = this.hasToken(tokenList, exchange);
+        if (hasToken != null) {
+            return hasToken;
         }
         //校验Token是不是过期，如果没有过期的话进行Toekn的延期，并进行授权否则返回重新登录
         Mono<Void> authorized = authorized(tokenList.get(0), exchange, chain);
@@ -79,7 +81,17 @@ public class AuthorizeGloableFilter implements GlobalFilter,Ordered {
 
 
     /**
+     * @Author 袁成龙
+     * @Description //TODO 判断是否包含admin的juese
+     * @Date 14:32 2020/9/17
+     * @Param
+     * @return
+     **/
+
+
+    /**
      * 过滤器的执行顺序
+     *
      * @return
      */
     @Override
@@ -90,11 +102,12 @@ public class AuthorizeGloableFilter implements GlobalFilter,Ordered {
 
     /**
      * 未授权登录也就是没有Token或者是token过期的情况下
+     *
      * @param exchange
-     * @param errorData  给定的错误信息
+     * @param errorData 给定的错误信息
      * @return
      */
-    public Mono<Void> responseUNAUTHORIZED(ServerWebExchange exchange,String errorData){
+    public Mono<Void> responseUNAUTHORIZED(ServerWebExchange exchange, String errorData) {
         ServerHttpResponse response = exchange.getResponse();
         HttpStatus httpStatus = HttpStatus.OK;
         byte[] bits = errorData.getBytes(StandardCharsets.UTF_8);
@@ -108,18 +121,19 @@ public class AuthorizeGloableFilter implements GlobalFilter,Ordered {
 
     /**
      * 校验请求中是否携带Token参数,如果没有的话返回失败信息
+     *
      * @param exchange
      * @return
      */
-    private Mono<Void> hasToken(List<String> tokenList,ServerWebExchange exchange){
-        if(tokenList.size()==0||tokenList.get(0).equals("")||tokenList.get(0).equals("null")){
+    private Mono<Void> hasToken(List<String> tokenList, ServerWebExchange exchange) {
+        if (tokenList.size() == 0 || tokenList.get(0).equals("") || tokenList.get(0).equals("null")) {
             //校验有没有Token参数
             ResponseResult responseResult = ResponseResult.getResponseResult();
             responseResult.setMsg(AllStatusEnum.NO_LOGIN.getMsg());
             responseResult.setCode(AllStatusEnum.NO_LOGIN.getCode());
 
             return this.responseUNAUTHORIZED(exchange, JSON.toJSONString(responseResult));
-        }else{
+        } else {
             return null;
         }
 
@@ -128,28 +142,77 @@ public class AuthorizeGloableFilter implements GlobalFilter,Ordered {
 
     /**
      * 判断当前请求的路径是不是需要登录操作
+     *
      * @param exchange
      * @param chain
      * @return
      */
-    private Mono<Void> isNeedToLogin(ServerWebExchange exchange, GatewayFilterChain chain){
+    private Mono<Void> isNeedToLogin(ServerWebExchange exchange, GatewayFilterChain chain) {
 
-        System.out.println("111111111111111"+exchange);
-        System.out.println("222222222222222222"+chain);
+        System.out.println("111111111111111" + exchange);
+        System.out.println("222222222222222222" + chain);
 
-        //获取当前请求的URL信息
-        String currentAccessUrl = getCurrentAccessUrl(exchange);
-        System.out.println("uuuu"+currentAccessUrl);
-        //判断当前请求的路径在不在访问的范围
-        boolean isNoNeedLogin = noNeedLoginPath.containsKey(currentAccessUrl);
-        System.out.println("666"+isNoNeedLogin);
-        if(isNoNeedLogin){
-            System.out.println("===================");
-            //如果当前访问的路径不在权限控制的范围，则直接通过过滤
-            return chain.filter(exchange);
-        }else{
-            return null;
+        List<String> tokenList = exchange.getRequest().getHeaders().get("token");
+//        String s = tokenList.get(0);
+//           System.out.println("token0===="+tokenList.get(0));
+        if (tokenList != null && tokenList.size() > 0) {
+            if (tokenList.size() > 0 && !tokenList.get(0).equals("") && !tokenList.get(0).equals("null")) {
+                JSONObject jsonObject = JwtUtils.decodeJwtTocken(tokenList.get(0));
+                System.out.println("3432432!!!!!!====" + jsonObject);
+                //获取用户的登录名信息
+                String loginName = jsonObject.getString("info");
+                System.out.println("获取用户名信息!!!!!!" + loginName);
+                //根据登录名获取用户的角色权限
+                Object uinfo = redisTemplate.opsForHash().get("user-auth", loginName);
+                System.out.println("info!!!!!!=" + uinfo);
+                System.out.println("info!!!!!!=-----" + uinfo.toString());
+                String userRole = uinfo.toString();
+                System.out.println("uuii+++" + userRole);
+                //解析出当前用户所拥有的角色权限
+                JSONObject jsonObject1 = JSON.parseObject(userRole);
+                System.out.println("iiiiii----" + jsonObject1);
+                JSONArray authorities = JSON.parseArray(jsonObject1.get("authorities").toString());
+                System.out.println("iiiiii))))))----" + authorities);
+                String str = "ROLE_ADMIN";
+                StringBuffer stringBuffer = null;
+                for (JSONObject obj : authorities.toJavaList(JSONObject.class)) {
+                    if (str.equals(obj.getString("authority"))) {
+                        System.out.println("===)))---");
+                        return chain.filter(exchange);
+                    }
+                }
+            }
+            else {
+                //获取当前请求的URL信息.
+                String currentAccessUrl = getCurrentAccessUrl(exchange);
+                System.out.println("uuuu" + currentAccessUrl);
+                //判断当前请求的路径在不在访问的范围
+                boolean isNoNeedLogin = noNeedLoginPath.containsKey(currentAccessUrl);
+                System.out.println("666" + isNoNeedLogin);
+                if (isNoNeedLogin) {
+                    System.out.println("===================");
+                    //如果当前访问的路径不在权限控制的范围，则直接通过过滤
+                    return chain.filter(exchange);
+                } else {
+                    return null;
+                }
+            }
+        } else {
+            //获取当前请求的URL信息.
+            String currentAccessUrl = getCurrentAccessUrl(exchange);
+            System.out.println("uuuu" + currentAccessUrl);
+            //判断当前请求的路径在不在访问的范围
+            boolean isNoNeedLogin = noNeedLoginPath.containsKey(currentAccessUrl);
+            System.out.println("666" + isNoNeedLogin);
+            if (isNoNeedLogin) {
+                System.out.println("===================");
+                //如果当前访问的路径不在权限控制的范围，则直接通过过滤
+                return chain.filter(exchange);
+            } else {
+                return null;
+            }
         }
+        return null;
     }
 
     /**
@@ -159,13 +222,13 @@ public class AuthorizeGloableFilter implements GlobalFilter,Ordered {
      * 返回值：
      * 描述: 校验token是不是过期，没有过期的话进行Token的延期，并进行授权
      */
-    public Mono<Void>authorized(String token,ServerWebExchange exchange,GatewayFilterChain chain){
-        try{
+    public Mono<Void> authorized(String token, ServerWebExchange exchange, GatewayFilterChain chain) {
+        try {
             //解析Token，进行授权，刷新token并通过响应头回写newToken
             Mono<Void> voidMono = praseTokenCheckAuth(token, exchange, chain);
             return voidMono;
 
-        }catch (ExpiredJwtException e){
+        } catch (ExpiredJwtException e) {
             //校验有没有Token参数或者是Token参数过期
             ResponseResult responseResult = ResponseResult.getResponseResult();
             responseResult.setMsg(AllStatusEnum.TOKEN_HAS_EXPIRE.getMsg());
@@ -181,7 +244,7 @@ public class AuthorizeGloableFilter implements GlobalFilter,Ordered {
      * 返回值：
      * 描述: 获取当前请求的URL的信息
      */
-    public String getCurrentAccessUrl(ServerWebExchange exchange){
+    public String getCurrentAccessUrl(ServerWebExchange exchange) {
         //获取请求的路径
         ServerHttpRequest request = exchange.getRequest();
         //获取当前的请求路径
@@ -196,12 +259,12 @@ public class AuthorizeGloableFilter implements GlobalFilter,Ordered {
      * 返回值：
      * 描述: 对Token进行刷新和延期,并在请求头中设置新的newToken
      */
-    public Mono<Void> updateTokenForDelay(String userInfo,ServerWebExchange exchange,GatewayFilterChain chain){
+    public Mono<Void> updateTokenForDelay(String userInfo, ServerWebExchange exchange, GatewayFilterChain chain) {
         //重新生成token
         //如果解析过程没有报错的话进行Token的延期(其实就是重新生成一下Token信息)
         String newToken = JwtUtils.generateToken(userInfo);
         //将新的Token写入响应头带回客户端
-        exchange.getResponse().getHeaders().set("newToken",newToken);
+        exchange.getResponse().getHeaders().set("newToken", newToken);
         //正常的返回客户端
         return chain.filter(exchange);
     }
@@ -213,22 +276,21 @@ public class AuthorizeGloableFilter implements GlobalFilter,Ordered {
      * 返回值：
      * 描述: 解析Token，并校验权限进行授权
      */
-    public Mono<Void> praseTokenCheckAuth(String token,ServerWebExchange exchange,GatewayFilterChain chain){
-        System.out.println("======token执行==="+token);
+    public Mono<Void> praseTokenCheckAuth(String token, ServerWebExchange exchange, GatewayFilterChain chain) {
+        System.out.println("======token执行===" + token);
         //解析token
         //如果过期的话这个解析的过程会报错 ExpiredJwtException，正确解析的话会得到用户的登录名
         JSONObject jsonObject = JwtUtils.decodeJwtTocken(token);
-        System.out.println("3432432===="+jsonObject);
-
+        System.out.println("3432432====" + jsonObject);
 
 
         //获取用户的登录名信息
-        String loginName=jsonObject.getString("info");
-        System.out.println("获取用户名信息"+loginName);
+        String loginName = jsonObject.getString("info");
+        System.out.println("获取用户名信息" + loginName);
         //根据登录名获取用户的角色权限
         Object uinfo = redisTemplate.opsForHash().get("user-auth", loginName);
-        System.out.println("info="+uinfo);
-        if(uinfo==null){
+        System.out.println("info=" + uinfo);
+        if (uinfo == null) {
             //返回重新登录
             ResponseResult responseResult = ResponseResult.getResponseResult();
             responseResult.setMsg(AllStatusEnum.NO_AUTH.getMsg());
@@ -244,12 +306,12 @@ public class AuthorizeGloableFilter implements GlobalFilter,Ordered {
         //判断当前的用户是否有 menuRole 这个角色信息
         JSONArray authorities = JSON.parseArray(jsonObject1.get("authorities").toString());
 
-        StringBuffer stringBuffer=null;
-        for (JSONObject obj:authorities.toJavaList(JSONObject.class)){
+        StringBuffer stringBuffer = null;
+        for (JSONObject obj : authorities.toJavaList(JSONObject.class)) {
             stringBuffer = new StringBuffer();
             stringBuffer.append(obj.getString("authority")).append(":").append(currentAccessUrl);
             Boolean menuRole = redisTemplate.opsForHash().hasKey("menuRole", stringBuffer.toString());
-            if(menuRole){
+            if (menuRole) {
                 //如果拥有该权限角色，更新Token,并返回新的Token
                 Mono<Void> voidMono = updateTokenForDelay(loginName, exchange, chain);
                 return voidMono;

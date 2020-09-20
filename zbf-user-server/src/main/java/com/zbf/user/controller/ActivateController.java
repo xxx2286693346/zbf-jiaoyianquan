@@ -9,18 +9,28 @@ import com.zbf.common.entity.ResponseResultEnum;
 import com.zbf.common.entity.my.BaseUser;
 import com.zbf.common.utils.*;
 import com.zbf.user.service.IBaseUserService;
-import org.checkerframework.checker.units.qual.A;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
+import io.minio.errors.InvalidEndpointException;
+import io.minio.errors.InvalidPortException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @description:
@@ -45,6 +55,11 @@ public class ActivateController{
 
     ResponseResult responseResult = new ResponseResult();
 
+    private static String url = "http://120.55.44.68:9000";
+    private static String access = "minioadmin";
+    private static String secret = "minioadmin";
+    private static String bucket = "two";
+
 
 
 
@@ -57,6 +72,12 @@ public class ActivateController{
      **/
     @RequestMapping("/Add")
     public ResponseResult add(@RequestBody BaseUser baseUser){
+        int random = RandomUtil.random(1, 10000000);
+        System.out.println(random);
+        int random1 = RandomUtil.random(1, 99999);
+        System.out.println(random1);
+        String i = random +""+ random1;
+        System.out.println(i);
         System.out.println("!!!)))!!!==================");
         //为了保证email和loginname不可以有重复的所以保证这两个值为唯一,所以判断
         QueryWrapper queryWrapper = new QueryWrapper();
@@ -79,41 +100,71 @@ public class ActivateController{
             responseResult.setCode(1004);
             return responseResult;
         }else{
-            //如果用户名和email都没有的情况下执行添加操作
-            System.out.println("==================3");
-            String s = RandomUtil.randomNumber(4);
-            //MD5加密
-            String encodePass= Md5.encode(baseUser.getPassWord()+s, "MD5");
-            System.out.println(encodePass);
-            BaseUser user = new BaseUser(null,
-                    baseUser.getUserName(),
-                    baseUser.getLoginName(),
-                    encodePass,
-                    baseUser.getTel(),
-                    baseUser.getSex(),
-                    baseUser.getEmail(),
-                    s,0);
-            boolean save = iBaseUserService.save(user);
-            //如果执行成功
-            if(save){
-                BaseUser maxid1 = iBaseUserService.maxid();
-                boolean adduserrole = iBaseUserService.adduserrole(maxid1.getId());
-                System.out.println("添加了中间表等操作"+adduserrole);
-                //通过异步线程来操作发邮件的这项操作
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        MailQQUtils.sendMessage("2286693346@qq.com",getActivate(actipaht,1*60*1000L,baseUser.getLoginName()),"NBA湖人招募信息","");
-                    }
-                });
-                thread.start();
-                //如果成功提示1006提示返回成功
-                responseResult.setCode(1006);
-                return responseResult;
+            if(baseUser.getImage()!=null) {
+                //如果用户名和email都没有的情况下执行添加操作
+                System.out.println("==================3");
+                String s = RandomUtil.randomNumber(4);
+                //MD5加密
+                String encodePass = Md5.encode(baseUser.getPassWord() + s, "MD5");
+                System.out.println(encodePass);
+                BaseUser user = new BaseUser(Long.valueOf(i).longValue(),
+                        baseUser.getUserName(),
+                        baseUser.getLoginName(),
+                        encodePass,
+                        baseUser.getTel(),
+                        baseUser.getSex(),
+                        baseUser.getEmail(),
+                        s, baseUser.getStatus(),
+                        baseUser.getImage(),
+                        LocalDateTime.now());
+                boolean save = iBaseUserService.save(user);
+                //如果执行成功
+                if (save) {
+                    BaseUser maxid1 = iBaseUserService.maxid();
+                    boolean adduserrole = iBaseUserService.adduserrole(maxid1.getId());
+                    System.out.println("添加了中间表等操作" + adduserrole);
+                    //如果成功提示1006提示返回成功
+                    responseResult.setCode(1006);
+                    return responseResult;
+                }
             }else{
-                responseResult.setCode(1008);
-                return responseResult;
+                //如果用户名和email都没有的情况下执行添加操作
+                System.out.println("==================3");
+                String s = RandomUtil.randomNumber(4);
+                //MD5加密
+                String encodePass= Md5.encode(baseUser.getPassWord()+s, "MD5");
+                System.out.println(encodePass);
+                BaseUser user = new BaseUser(Long.valueOf(i).longValue(),
+                        baseUser.getUserName(),
+                        baseUser.getLoginName(),
+                        encodePass,
+                        baseUser.getTel(),
+                        baseUser.getSex(),
+                        baseUser.getEmail(),
+                        s,0);
+                boolean save = iBaseUserService.save(user);
+                //如果执行成功
+                if(save){
+                    BaseUser maxid1 = iBaseUserService.maxid();
+                    boolean adduserrole = iBaseUserService.adduserrole(maxid1.getId());
+                    System.out.println("添加了中间表等操作"+adduserrole);
+                    //通过异步线程来操作发邮件的这项操作
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MailQQUtils.sendMessage("2286693346@qq.com",getActivate(actipaht,1*60*1000L,baseUser.getLoginName()),"NBA湖人招募信息","");
+                        }
+                    });
+                    thread.start();
+                    //如果成功提示1006提示返回成功
+                    responseResult.setCode(1006);
+                    return responseResult;
+                }else{
+                    responseResult.setCode(1008);
+                    return responseResult;
+                }
             }
+            return responseResult;
         }
     }
 
@@ -241,5 +292,51 @@ public class ActivateController{
                 "/activePath/",
                 "sendOk.html",stringObjectHashMap, response.getWriter());
     }
+
+
+
+/*    @RequestMapping("upload")
+    public String upload(@RequestParam("file") MultipartFile file) throws IOException, InvalidPortException, InvalidEndpointException {
+        String fileName=null;
+        try {
+            //创建MinioClient对象
+            MinioClient minioClient =
+                    MinioClient.builder()
+                            .endpoint(url)
+                            .credentials(access, secret)
+                            .build();
+            InputStream in = file.getInputStream();
+            fileName = file.getOriginalFilename();
+            //String fileName = file.getName();
+            //文件上传到minio上的Name把文件后缀带上，不然下载出现格式问题
+            fileName = UUID.randomUUID() +"."+fileName.substring(fileName.lastIndexOf(".") + 1);
+            //创建头部信息
+            Map<String, String> headers = new HashMap<>(10);
+            //添加自定义内容类型
+            headers.put("Content-Type", "image/jpeg");
+            //添加存储类
+            headers.put("X-Amz-Storage-Class", "REDUCED_REDUNDANCY");
+            //添加自定义/用户元数据
+            Map<String, String> userMetadata = new HashMap<>(10);
+            userMetadata.put("My-Project", "Project One");
+            //上传
+            minioClient.putObject(
+                    PutObjectArgs.builder().bucket(bucket).object(fileName).stream(
+                            in, in.available(), -1)
+                            .headers(headers)
+                            .build());
+            //.userMetadata(userMetadata)
+            in.close();
+            System.out.println(fileName);
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        System.out.println(url+"/"+bucket+"/"+fileName);
+        return url+"/"+bucket+"/"+fileName;
+    }*/
+
+
+
 
 }

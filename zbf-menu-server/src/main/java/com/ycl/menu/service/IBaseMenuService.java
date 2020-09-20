@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.zbf.common.entity.my.BaseMenu;
 import com.zbf.common.entity.my.BaseRoleMenu;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ import java.util.List;
 public interface IBaseMenuService extends IService<BaseMenu> {
 
     List<BaseMenu> findall(@Param("loginName") String loginName, @Param("leval") Integer leval, @Param("code") Long code);
+
+    List<BaseMenu> findalldan( @Param("leval") Integer leval, @Param("code") Long code);
 }

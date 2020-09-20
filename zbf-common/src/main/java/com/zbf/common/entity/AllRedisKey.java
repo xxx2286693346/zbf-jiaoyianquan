@@ -14,7 +14,9 @@ public enum  AllRedisKey {
     ALL_MENU_KEY("menuRole","系统所有权限的key"),
     USER_AUTH_KEY("user-auth","用户权限key"),
     USRE_INFO_KEY("user-info","用户信息的key"),
-    CODES("codes","验证码的key");
+    CODES("codes","验证码的key"),
+    USER_MENU_KEY("user-menu","菜单的key"),
+    MENU_ALL("menuall","菜单列表的key");;
 
 
     private String code;

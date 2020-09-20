@@ -62,6 +62,7 @@ public class JwtUtils {
      * @return
      */
     public static JSONObject decodeJwtTocken(String token){
+        System.out.println(token);
         //根据签名的key解密token信息
         Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
         //将用户信息转为JSONObject返回

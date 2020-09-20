@@ -28,4 +28,9 @@ public class BaseMenuServiceImpl extends ServiceImpl<BaseMenuMapper, BaseMenu> i
     public List<BaseMenu> findall(String loginName, Integer leval, Long code) {
         return baseMenuMapper.findall(loginName,leval,code);
     }
+
+    @Override
+    public List<BaseMenu> findalldan(Integer leval, Long code) {
+        return baseMenuMapper.findalldan(leval,code);
+    }
 }

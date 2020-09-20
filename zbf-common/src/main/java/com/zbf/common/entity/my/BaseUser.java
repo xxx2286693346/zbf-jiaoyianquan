@@ -3,6 +3,7 @@ package com.zbf.common.entity.my;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.google.common.annotations.VisibleForTesting;
 import com.zbf.common.entity.enums.SexEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -73,6 +74,11 @@ public class BaseUser implements Serializable {
     @TableField("status")
     private Integer status;
 
+    private String image;
+
+    @TableField(exist = false)
+    private String rname;
+
     public BaseUser(Long id, String userName, String loginName, String passWord, String tel, SexEnum sex, String email, String salt,Integer status) {
         this.id = id;
         this.userName = userName;
@@ -85,6 +91,28 @@ public class BaseUser implements Serializable {
         this.status=status;
     }
 
+
+
+
+    public BaseUser(Long id, String userName, String loginName, String passWord, String tel, SexEnum sex, String email, String salt,Integer status,String image,LocalDateTime createTime) {
+        this.id = id;
+        this.userName = userName;
+        this.loginName = loginName;
+        this.passWord = passWord;
+        this.tel = tel;
+        this.sex = sex;
+        this.email = email;
+        this.salt = salt;
+        this.status=status;
+        this.image=image;
+        this.createTime=createTime;
+    }
+
+
+
+
+
+
     public BaseUser(String passWord, String salt) {
         this.passWord = passWord;
         this.salt = salt;
@@ -94,7 +122,7 @@ public class BaseUser implements Serializable {
         this.status = status;
     }
 
-    public BaseUser(Long id, Integer version, String userName, String loginName, String passWord, String tel, String buMen, String salt, LocalDateTime createTime, LocalDateTime updateTime, SexEnum sex, String email,Integer status) {
+    public BaseUser(Long id, Integer version, String userName, String loginName, String passWord, String tel, String buMen, String salt, LocalDateTime createTime, LocalDateTime updateTime, SexEnum sex, String email, Integer status, String image, String rname) {
         this.id = id;
         this.version = version;
         this.userName = userName;
@@ -107,7 +135,9 @@ public class BaseUser implements Serializable {
         this.updateTime = updateTime;
         this.sex = sex;
         this.email = email;
-        this.status=status;
+        this.status = status;
+        this.image = image;
+        this.rname = rname;
     }
 
     public BaseUser() {

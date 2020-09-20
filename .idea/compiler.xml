@@ -9,10 +9,12 @@
         <outputRelativeToContentRoot value="true" />
         <module name="zbf-auth-core" />
         <module name="zdf-aliyun-login" />
+        <module name="zbf-gateway" />
+        <module name="zbf-deupload-server" />
         <module name="zbf-user-server" />
         <module name="zbf-common" />
         <module name="zbf-menu-server" />
-        <module name="zbf-gateway" />
+        <module name="zbf-role-server" />
       </profile>
     </annotationProcessing>
   </component>
@@ -20,8 +22,10 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="zbf-auth-core" options="-parameters" />
       <module name="zbf-common" options="-parameters" />
+      <module name="zbf-deupload-server" options="-parameters" />
       <module name="zbf-gateway" options="-parameters" />
       <module name="zbf-menu-server" options="-parameters" />
+      <module name="zbf-role-server" options="-parameters" />
       <module name="zbf-user-server" options="-parameters" />
       <module name="zdf-aliyun-login" options="-parameters" />
     </option>

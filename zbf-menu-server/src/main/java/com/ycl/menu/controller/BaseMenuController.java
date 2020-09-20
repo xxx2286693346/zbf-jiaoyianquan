@@ -24,7 +24,7 @@ import java.util.List;
  * @since 2020-09-16
  */
 @RestController
-@RequestMapping("/baseMenu")
+
 public class BaseMenuController {
 
     @Autowired
@@ -35,15 +35,17 @@ public class BaseMenuController {
 
 
 
-    @RequestMapping("/list")
+    //左侧菜单的查询使用递归的方法是
     public  List<BaseMenu> findall(String loginName){
         System.out.println("zhi=="+loginName);
         List<BaseMenu> listmenu = iBaseMenuService.findall(loginName, 1, (long) 0);
+        System.out.println(listmenu);
         this.digui(listmenu,loginName,1);
         return listmenu;
     }
 
 
+    //递归的方法在这里获取二级以及三级
     public void digui(List<BaseMenu> baseMenus,String loginname,Integer level){
         Integer zhi = level+1;
         for (BaseMenu baseMenu: baseMenus) {
@@ -58,6 +60,37 @@ public class BaseMenuController {
         }
     }
 
+
+
+
+
+
+
+
+
+    //左侧菜单的查询使用递归的方法是
+    public  List<BaseMenu> findalldan(){
+        List<BaseMenu> listmenu = iBaseMenuService.findalldan(1, (long) 0);
+        System.out.println(listmenu);
+        this.diguidan(listmenu,1);
+        return listmenu;
+    }
+
+
+    //递归的方法在这里获取二级以及三级
+    public void diguidan(List<BaseMenu> baseMenus,Integer level){
+        Integer zhi = level+1;
+        for (BaseMenu baseMenu: baseMenus) {
+            List<BaseMenu> findall = iBaseMenuService.findalldan(zhi, baseMenu.getCode());
+            if(findall.size()>0){
+                baseMenu.setBaseMenus(findall);
+                this.diguidan(findall,zhi);
+            }else{
+                ArrayList<BaseMenu> list = new ArrayList<>();
+                baseMenu.setBaseMenus(list);
+            }
+        }
+    }
 
 
 

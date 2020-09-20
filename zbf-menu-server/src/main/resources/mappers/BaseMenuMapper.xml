@@ -4,15 +4,15 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.zbf.common.entity.my.BaseMenu">
-        <id column="id" property="id" />
-        <result column="version" property="version" />
-        <result column="code" property="code" />
-        <result column="menuName" property="menuName" />
-        <result column="imagePath" property="imagePath" />
-        <result column="url" property="url" />
-        <result column="parentCode" property="parentCode" />
-        <result column="leval" property="leval" />
-        <result column="createTime" property="createTime" />
+        <id column="id" property="id"/>
+        <result column="version" property="version"/>
+        <result column="code" property="code"/>
+        <result column="menuName" property="menuName"/>
+        <result column="imagePath" property="imagePath"/>
+        <result column="url" property="url"/>
+        <result column="parentCode" property="parentCode"/>
+        <result column="leval" property="leval"/>
+        <result column="createTime" property="createTime"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -23,7 +23,8 @@
 
     <select id="findall" resultType="com.zbf.common.entity.my.BaseMenu">
         SELECT
-DISTINCT bu.id,
+DISTINCT bu.id bid,
+bm.id,
 	bu.loginName,
 	bm.menuName,
 	bm.imagePath,
@@ -39,6 +40,26 @@ FROM
 WHERE
 	bu.loginName = #{loginName}
 	AND bm.leval = #{leval}
+	AND bm.parentCode=#{code}
+    </select>
+
+
+
+
+
+    <select id="findalldan" resultType="com.zbf.common.entity.my.BaseMenu">
+        SELECT
+DISTINCT bm.id,
+	bm.menuName,
+	bm.imagePath,
+	bm.leval,
+	bm.code,
+	bm.parentCode,
+	bm.url
+FROM
+	 base_menu bm
+WHERE
+	 bm.leval = #{leval}
 	AND bm.parentCode=#{code}
     </select>
 

@@ -63,7 +63,7 @@ public class ZuoYeAutoGenerator {
         //1.4生成策略配置
         StrategyConfig sc = new StrategyConfig();
         //指定生成的表名，数组  //指定生成表
-       sc.setInclude("base_user"); //没有的话，就全部生成
+       sc.setInclude("base_user_role"); //没有的话，就全部生成
         //sc.setExclude() 排除表
         //开启 前后端的时候打开
         sc.setRestControllerStyle(true);
