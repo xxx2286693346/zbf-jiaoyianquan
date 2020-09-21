@@ -74,6 +74,7 @@ public class BaseUser implements Serializable {
     @TableField("status")
     private Integer status;
 
+    @TableField("image")
     private String image;
 
     @TableField(exist = false)

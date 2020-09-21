@@ -14,6 +14,7 @@ import com.zbf.common.entity.enums.SexEnum;
 import com.zbf.common.entity.my.BaseUser;
 import com.zbf.common.utils.*;
 import com.zbf.user.mapper.BaseUserMapper;
+import com.zbf.user.mapper.FeignMapper;
 import com.zbf.user.service.IBaseUserService;
 import com.zbf.user.service.ServiceYan;
 import freemarker.template.Configuration;
@@ -59,6 +60,9 @@ public class BaseUserController {
 
     @Autowired
     IBaseUserService iBaseUserService;
+
+    @Autowired
+    FeignMapper feignMapper;
 
 
 
@@ -257,7 +261,15 @@ public class BaseUserController {
    @RequestMapping("findloginName")
    public ResponseResult baseUser(String loginName){
        BaseUser user = iBaseUserService.finloginName(loginName);
-       responseResult.setResult(user);
+       System.out.println(user);
+       if(user!=null){
+           System.out.println(user);
+           responseResult.setResult(user);
+           responseResult.setCode(1006);
+       }else{
+           System.out.println(user);
+           responseResult.setCode(1004);
+       }
        return responseResult;
    }
    
@@ -315,11 +327,15 @@ public class BaseUserController {
             String substring = str.substring(0, length - 1);
             getlist= iBaseUserService.getlist(pai,idcreatetime, num, substring,null);
         }
+        boolean getname = feignMapper.getname(str, str1);
+        System.out.println(getname);
+        if(getname){
+            boolean getlistexec = feignMapper.getlistexec(getlist);
+            if(getlistexec){
+                responseResult.setCode(1006);
+            }
+        }
 
-        responseResult.setResult(getlist);
-        responseResult.setCode(1006);
-        responseResult.setSuccess(str);
-        responseResult.setMsg(str1);
         return responseResult;
 
     }

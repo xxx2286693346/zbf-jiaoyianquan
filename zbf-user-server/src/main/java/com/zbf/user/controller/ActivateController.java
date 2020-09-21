@@ -117,7 +117,7 @@ public class ActivateController{
                         s, baseUser.getStatus(),
                         baseUser.getImage(),
                         LocalDateTime.now());
-                boolean save = iBaseUserService.save(user);
+                boolean save = iBaseUserService.saveOrUpdate(baseUser);
                 //如果执行成功
                 if (save) {
                     BaseUser maxid1 = iBaseUserService.maxid();
