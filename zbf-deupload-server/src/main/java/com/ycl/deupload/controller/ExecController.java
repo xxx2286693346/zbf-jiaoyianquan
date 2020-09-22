@@ -6,9 +6,6 @@ import com.ycl.deupload.entity.Users;
 import com.ycl.util.StringUtil;
 import com.zbf.common.entity.ResponseResult;
 import com.zbf.common.entity.my.BaseUser;
-import jxl.Sheet;
-import jxl.Workbook;
-import org.apache.catalina.User;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
@@ -30,10 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import jxl.Cell;
-import jxl.Sheet;
-import jxl.Workbook;
-import jxl.read.biff.BiffException;
 
 
 /**
@@ -54,26 +47,22 @@ public class ExecController {
 
     ResponseResult responseResult = new ResponseResult();
 
-    /**
-     * 生成测试数据 studentList  数量自己定义
-     */
-  /*  public void initList() {
-        studentList = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            studentList.add(genStudent(i));
-        }
-    }*/
-    public static void main(String[] args) {
+   /* public static void main(String[] args) {
         //定义一维数组，存放Excel表里的每一行的各个列的数据
         Object[] obj = null;
         //定义List集合，存放每一行的数据
         ArrayList<Object[]> list = new ArrayList<Object[]>();
 
-        String filePath = "I:\\getExec\\kl.xls";
+        String filePath = "I:\\getExec\\kl.xlsx";
         InputStream is = null;
         Workbook rwb = null;
 
-        try {
+
+        String fileName="kl.xls";
+       // String extName = "."+FilenameUtils.getExtension(file.getName());
+
+
+            try {
             is = new FileInputStream(filePath);//定义文本输入流
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -81,13 +70,14 @@ public class ExecController {
 
         try {
             rwb = Workbook.getWorkbook(is);//打开Workbook
+
         } catch (BiffException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
         //获取Excel表的Sheet1区域的数据
-        Sheet sht = rwb.getSheet("ee");
+        Sheet sht = rwb.getSheet("用户信息表4");
         int col = sht.getColumns(); //获得Excel列
         int row = sht.getRows(); //获得Excel行
 
@@ -120,7 +110,7 @@ public class ExecController {
 
 
 
-
+*/
     /*
      * 导入
      * */
@@ -130,7 +120,7 @@ public class ExecController {
         try
         {
             //获取该xlsx文件
-            OPCPackage pkg=OPCPackage.open("I:\\getExec\\李狱.xlsx");
+            OPCPackage pkg=OPCPackage.open("I:\\getExec\\kl.xlsx");
             //加载xlsx
             XSSFWorkbook excel=new XSSFWorkbook(pkg);
             int numberOfSheets = excel.getNumberOfSheets();
@@ -199,41 +189,42 @@ public class ExecController {
      */
     @RequestMapping("/getexec")
     public boolean simple(@RequestBody List<BaseUser> list1) throws Exception {
-        List<Users> users = new ArrayList<>();
-        for (int i=0;i<list1.size();i++) {
-            Users users1 = new Users();
-            if(list1.get(i).getRname()!=null){
-                users1.setRname(list1.get(i).getRname());
-            }
-            if(list1.get(i).getLoginName()!=null){
-                users1.setLoginName(list1.get(i).getLoginName());
-            }
-            if(list1.get(i).getEmail()!=null){
-                users1.setEmail(list1.get(i).getEmail());
-            }if(list1.get(i).getTel()!=null){
-                users1.setTel(list1.get(i).getTel());
-            }
-            users.add(users1);
-        };
-        String substring = string.substring(0, string.length() - 1);
-        String substring1 = string1.substring(0, string1.length() - 1);
-        String[] split = substring.split(",");
-        String[] split1 = substring1.split(",");
-        /*
-         * 定义sheetInfo
-         */         //
-        String sheetName = "用户信息表";
-        //创建xslx列明
-       // String[] columnNames =split;
-        //创建实体类Student 列名       xslx 与 Student 名字的一一对应
-     //   String[] classFieldNames=split1;
-        //创建生成xslx                        //sheet名    xlsx列名       实体类名           集合数据
+        if(string.length()>0&&string1.length()>0&&!string.equals("")&&string!=null&&!string1.equals("")&&string1!=null){
+            List<Users> users = new ArrayList<>();
+            for (int i=0;i<list1.size();i++) {
+                Users users1 = new Users();
+                if(list1.get(i).getRname()!=null){
+                    users1.setRname(list1.get(i).getRname());
+                }
+                if(list1.get(i).getLoginName()!=null){
+                    users1.setLoginName(list1.get(i).getLoginName());
+                }
+                if(list1.get(i).getEmail()!=null){
+                    users1.setEmail(list1.get(i).getEmail());
+                }if(list1.get(i).getTel()!=null){
+                    users1.setTel(list1.get(i).getTel());
+                }
+                users.add(users1);
+            };
+            String substring = string.substring(0, string.length() - 1);
+            String substring1 = string1.substring(0, string1.length() - 1);
+            String[] split = substring.split(",");
+            String[] split1 = substring1.split(",");
+            /*
+             * 定义sheetInfo
+             */         //
+            String sheetName = "用户信息表";
+            //创建xslx列明
+            // String[] columnNames =split;
+            //创建实体类Student 列名       xslx 与 Student 名字的一一对应
+            //   String[] classFieldNames=split1;
+            //创建生成xslx                        //sheet名    xlsx列名       实体类名           集合数据
 
-        List<SheetInfo> sheetInfo1 = new ArrayList<>();
-        SXSSFWorkbook workbook=null;
-        int in=4;
-        int i=0;
-        List<Users> users1 = new ArrayList<>();
+            List<SheetInfo> sheetInfo1 = new ArrayList<>();
+            SXSSFWorkbook workbook=null;
+            int in=4;
+            int i=0;
+            List<Users> users1 = new ArrayList<>();
             for (i=0;i<users.size();i++){
                 users1.add(users.get(i));
                 if(i==in){
@@ -245,32 +236,58 @@ public class ExecController {
                     //通过 sheetInfo 创建 workbook
                 }
             }
-        if(users1.size()>0){
-            SheetInfo sheetInfo = new SheetInfo(sheetName+i, split1, split, users1);
-            sheetInfo1.add(sheetInfo);
+            if(users1.size()>0){
+                SheetInfo sheetInfo = new SheetInfo(sheetName+i, split1, split, users1);
+                sheetInfo1.add(sheetInfo);
+            }
+            workbook= ExcelBuilder.createWorkbook(sheetInfo1);
+
+
+            /*
+             * 通过workbook写入文件
+             */
+
+            //创建文件位置
+            FileOutputStream file = new FileOutputStream("I:/getExec/"+StringUtil.generateChineseName()+".xls");
+            //写入
+            workbook.write(file);
+            //关闭
+            file.close();
+            //通过workbook需要删除临时文件
+            workbook.dispose();
+            return true;
+            /*
+             * 直接写入文件
+             */
+            //FileOutputStream file = new FileOutputStream("simple.xlsx");
+            //ExcelBuilder.writeOutputStream(sheetInfo, file);
+            //file.close();
+        }else{
+            String sheetName = "用户信息表";
+            String [] sr = {"version","userName","loginName","tel","buMen","createTime","email","status","image"};
+            String [] ss = {"version","userName","loginName","tel","buMen","createTime","email","status","image"};
+            SheetInfo sheetInfo = new SheetInfo(sheetName, sr, ss, list1);
+            SXSSFWorkbook workbook = ExcelBuilder.createWorkbook(sheetInfo);
+            /*
+             * 通过workbook写入文件
+             */
+
+            //创建文件位置
+            FileOutputStream file = new FileOutputStream("I:/getExec/"+StringUtil.generateChineseName()+".xls");
+            //写入
+            workbook.write(file);
+            //关闭
+            file.close();
+            //通过workbook需要删除临时文件
+            workbook.dispose();
+            return true;
+            /*
+             * 直接写入文件
+             */
+            //FileOutputStream file = new FileOutputStream("simple.xlsx");
+            //ExcelBuilder.writeOutputStream(sheetInfo, file);
+            //file.close();
         }
-        workbook= ExcelBuilder.createWorkbook(sheetInfo1);
-
-
-        /*
-         * 通过workbook写入文件
-         */
-
-        //创建文件位置
-        FileOutputStream file = new FileOutputStream("I:/getExec/"+StringUtil.generateChineseName()+".xls");
-        //写入
-        workbook.write(file);
-        //关闭
-        file.close();
-        //通过workbook需要删除临时文件
-        workbook.dispose();
-        return true;
-        /*
-         * 直接写入文件
-         */
-        //FileOutputStream file = new FileOutputStream("simple.xlsx");
-        //ExcelBuilder.writeOutputStream(sheetInfo, file);
-        //file.close();
     }
 
 

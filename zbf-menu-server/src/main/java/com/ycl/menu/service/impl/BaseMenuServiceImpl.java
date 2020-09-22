@@ -33,4 +33,9 @@ public class BaseMenuServiceImpl extends ServiceImpl<BaseMenuMapper, BaseMenu> i
     public List<BaseMenu> findalldan(Integer leval, Long code) {
         return baseMenuMapper.findalldan(leval,code);
     }
+
+    @Override
+    public List<BaseMenu> finrid(Integer leval,Long code,Integer rid) {
+        return baseMenuMapper.finrid(leval,code,rid);
+    }
 }

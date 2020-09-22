@@ -230,4 +230,41 @@ public class MenuController {
         return response;
     }
 
+
+
+    @RequestMapping("/meuns")
+    public ResponseResult responseResult(Integer rid){
+        List<BaseMenu> findalldan = menuService.findalldan();
+        responseResult.setResult(findalldan);
+        List<BaseMenu> finrid = menuService.finrid(rid);
+        String zhi = "";
+
+        if(findalldan.size()>0){
+            for (BaseMenu baseMenu:finrid) {
+                zhi+=baseMenu.getId()+",";
+                if(baseMenu.getBaseMenus().size()>0){
+                    for (BaseMenu baseMenu1:baseMenu.getBaseMenus()) {
+                        zhi+=baseMenu1.getId()+",";
+                        if(baseMenu1.getBaseMenus().size()>0){
+                            for (BaseMenu baseMenu2:baseMenu1.getBaseMenus()) {
+                                zhi+=baseMenu2.getId()+",";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        responseResult.setUserInfo(finrid);
+        if(zhi.length()>0){
+            String substring = zhi.substring(0, zhi.length() - 1);
+            responseResult.setMsg(substring);
+        }else{
+            responseResult.setMsg(zhi);
+        }
+        return responseResult;
+    }
+
+
 }

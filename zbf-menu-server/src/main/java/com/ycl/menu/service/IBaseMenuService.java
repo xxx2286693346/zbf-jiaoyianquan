@@ -21,4 +21,6 @@ public interface IBaseMenuService extends IService<BaseMenu> {
     List<BaseMenu> findall(@Param("loginName") String loginName, @Param("leval") Integer leval, @Param("code") Long code);
 
     List<BaseMenu> findalldan( @Param("leval") Integer leval, @Param("code") Long code);
+
+    List<BaseMenu> finrid( @Param("leval") Integer leval, @Param("code") Long code,@Param("rid") Integer rid);
 }

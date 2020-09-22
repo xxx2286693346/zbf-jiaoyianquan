@@ -154,7 +154,7 @@ public class AuthorizeGloableFilter implements GlobalFilter, Ordered {
 
         List<String> tokenList = exchange.getRequest().getHeaders().get("token");
 //        String s = tokenList.get(0);
-//           System.out.println("token0===="+tokenList.get(0));
+//        System.out.println("token0===="+tokenList.get(0));
         if (tokenList != null && tokenList.size() > 0) {
             if (tokenList.size() > 0 && !tokenList.get(0).equals("") && !tokenList.get(0).equals("null")) {
                 JSONObject jsonObject = JwtUtils.decodeJwtTocken(tokenList.get(0));

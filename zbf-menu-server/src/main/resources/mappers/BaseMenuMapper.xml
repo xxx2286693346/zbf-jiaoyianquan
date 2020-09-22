@@ -63,4 +63,26 @@ WHERE
 	AND bm.parentCode=#{code}
     </select>
 
+
+
+	<select id="finrid" resultType="com.zbf.common.entity.my.BaseMenu">
+		SELECT DISTINCT
+	bm.id,
+	bm.menuName,
+	bm.imagePath,
+	bm.leval,
+	bm. CODE,
+	bm.parentCode,
+	bm.url
+FROM
+	base_role br
+INNER JOIN base_user_role bur ON br.id = bur.roleId
+INNER JOIN base_role_menu brm ON bur.roleId = brm.role_id
+INNER JOIN base_menu bm ON brm.menu_id = bm.id
+WHERE
+	bm.leval = #{leval}
+AND bm.parentCode = #{code}
+AND br.id=#{rid}
+	</select>
+
 </mapper>

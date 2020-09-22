@@ -22,7 +22,7 @@ public interface BaseMenuMapper extends BaseMapper<BaseMenu> {
 
     List<BaseMenu> findalldan( @Param("leval") Integer leval, @Param("code") Long code);
 
-
+    List<BaseMenu> finrid( @Param("leval") Integer leval, @Param("code") Long code,@Param("rid") Integer rid);
 
 
 }

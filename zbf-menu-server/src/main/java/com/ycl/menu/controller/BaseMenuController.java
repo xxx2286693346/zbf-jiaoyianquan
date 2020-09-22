@@ -97,6 +97,32 @@ public class BaseMenuController {
 
 
 
+    //左侧菜单的查询使用递归的方法是
+    public  List<BaseMenu> finrid(Integer rid){
+        List<BaseMenu> listmenu = iBaseMenuService.finrid(1,(long)0,rid);
+        System.out.println(listmenu);
+        this.digu1(listmenu,1,rid);
+        return listmenu;
+    }
+
+
+    //递归的方法在这里获取二级以及三级
+    public void digu1(List<BaseMenu> baseMenus,Integer level,Integer rid){
+        Integer zhi = level+1;
+        for (BaseMenu baseMenu: baseMenus) {
+            List<BaseMenu> findall = iBaseMenuService.finrid(zhi, baseMenu.getCode(),rid);
+            if(findall.size()>0){
+                baseMenu.setBaseMenus(findall);
+                this.digu1(findall,zhi,rid);
+            }else{
+                ArrayList<BaseMenu> list = new ArrayList<>();
+                baseMenu.setBaseMenus(list);
+            }
+        }
+    }
+
+
+
 
 
 

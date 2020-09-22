@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import sun.rmi.runtime.Log;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -72,11 +73,12 @@ public class ActivateController{
      **/
     @RequestMapping("/Add")
     public ResponseResult add(@RequestBody BaseUser baseUser){
+        int i1 =1;
         int random = RandomUtil.random(1, 10000000);
         System.out.println(random);
         int random1 = RandomUtil.random(1, 99999);
         System.out.println(random1);
-        String i = random +""+ random1;
+        String i = random +""+ random1+""+i1;
         System.out.println(i);
         System.out.println("!!!)))!!!==================");
         //为了保证email和loginname不可以有重复的所以保证这两个值为唯一,所以判断
@@ -100,6 +102,7 @@ public class ActivateController{
             responseResult.setCode(1004);
             return responseResult;
         }else{
+            System.out.println("images==="+baseUser.getImage());
             if(baseUser.getImage()!=null) {
                 //如果用户名和email都没有的情况下执行添加操作
                 System.out.println("==================3");
@@ -117,11 +120,12 @@ public class ActivateController{
                         s, baseUser.getStatus(),
                         baseUser.getImage(),
                         LocalDateTime.now());
-                boolean save = iBaseUserService.saveOrUpdate(baseUser);
+                boolean save = iBaseUserService.saveOrUpdate(user);
                 //如果执行成功
                 if (save) {
-                    BaseUser maxid1 = iBaseUserService.maxid();
-                    boolean adduserrole = iBaseUserService.adduserrole(maxid1.getId());
+                    i1=i1+1;
+                //    BaseUser maxid1 = iBaseUserService.maxid();
+                    boolean adduserrole = iBaseUserService.adduserrole(Long.valueOf(i).longValue());
                     System.out.println("添加了中间表等操作" + adduserrole);
                     //如果成功提示1006提示返回成功
                     responseResult.setCode(1006);
@@ -145,8 +149,9 @@ public class ActivateController{
                 boolean save = iBaseUserService.save(user);
                 //如果执行成功
                 if(save){
+                    i1=i1+1;
                     BaseUser maxid1 = iBaseUserService.maxid();
-                    boolean adduserrole = iBaseUserService.adduserrole(maxid1.getId());
+                    boolean adduserrole = iBaseUserService.adduserrole(Long.valueOf(i).longValue());
                     System.out.println("添加了中间表等操作"+adduserrole);
                     //通过异步线程来操作发邮件的这项操作
                     Thread thread = new Thread(new Runnable() {
@@ -167,6 +172,91 @@ public class ActivateController{
             return responseResult;
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   /**
+    * @Author 袁成龙
+    * @Description //TODO 这个类是用来修改用户的
+    * @Date 21:15 2020/9/22
+    * @Param 
+    * @return 
+    **/
+    @RequestMapping("/AddUpdate")
+    public ResponseResult AddUpdate(@RequestBody BaseUser baseUser){
+        int i1 =1;
+        int random = RandomUtil.random(1, 10000000);
+        int random1 = RandomUtil.random(1, 99999);
+        String i = random +""+ random1+""+i1;
+        //为了保证email和loginname不可以有重复的所以保证这两个值为唯一,所以判断
+        System.out.println("images==="+baseUser.getImage());
+                //如果用户名和email都没有的情况下执行添加操作
+                System.out.println("==================3");
+                String s = RandomUtil.randomNumber(4);
+                //MD5加密
+
+        BaseUser user = null;
+                if(baseUser.getSalt()!=null||baseUser.getPassWord()!=null){
+                    String encodePass = Md5.encode(baseUser.getPassWord() + baseUser.getSalt(), "MD5");
+                    System.out.println(encodePass);
+                     user = new BaseUser(baseUser.getId(),
+                            baseUser.getUserName(),
+                            baseUser.getLoginName(),
+                            encodePass,
+                            baseUser.getTel(),
+                            baseUser.getSex(),
+                            baseUser.getEmail(),
+                            baseUser.getSalt(),
+                            baseUser.getStatus(),
+                            baseUser.getImage(),
+                            LocalDateTime.now());
+                }else{
+                    String encodePass = Md5.encode(baseUser.getPassWord() + s, "MD5");
+                    System.out.println(encodePass);
+                     user = new BaseUser(baseUser.getId(),
+                            baseUser.getUserName(),
+                            baseUser.getLoginName(),
+                            encodePass,
+                            baseUser.getTel(),
+                            baseUser.getSex(),
+                            baseUser.getEmail(),
+                            baseUser.getSalt(),
+                            baseUser.getStatus(),
+                            baseUser.getImage(),
+                            LocalDateTime.now());
+                }
+                boolean save = iBaseUserService.saveOrUpdate(user);
+                responseResult.setCode(1006);
+            return responseResult;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     /**
@@ -205,6 +295,14 @@ public class ActivateController{
     }
 
 
+    /**
+     * @Author 袁成龙
+     * @Description //TODO 获得激活的连接
+    * @param response
+     * @Date 21:15 2020/9/22
+     * @Param 
+     * @return 
+     **/
     @RequestMapping("/userActivate")
     public void getpath(HttpServletRequest request, HttpServletResponse response) throws Exception{
         HashMap<String,Object> hashMap = new HashMap<>();

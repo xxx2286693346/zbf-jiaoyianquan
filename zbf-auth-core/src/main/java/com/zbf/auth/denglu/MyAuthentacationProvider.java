@@ -156,6 +156,7 @@ public class MyAuthentacationProvider implements AuthenticationProvider {
                 Map<String, Object> userByUserName = userDao.getUserByUserName(userName);
                 System.out.println("+++++++++++++++++=="+userByUserName);
                 String encodePass = Md5.encode(password+userByUserName.get("salt"), "MD5");
+                System.out.println("加密后的========="+encodePass);
                 //String encode = bCryptPasswordEncoder.encode(password);
                 //根据用户名获取用户的信息，这里调用根据用户名获取用户信息的UserServiceDetail类
                 UserDetails userDetails = myUserServiceDetail.loadUserByUsername(userName);

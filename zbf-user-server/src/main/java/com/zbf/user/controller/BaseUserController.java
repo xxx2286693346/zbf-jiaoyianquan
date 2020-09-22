@@ -1,6 +1,8 @@
 package com.zbf.user.controller;
 
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -29,10 +31,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -294,6 +298,16 @@ public class BaseUserController {
     }
 
 
+    /**
+     * @Author 袁成龙
+     * @Description //TODO * 实现exec的导出调用了fegin的方法
+    * @param pai
+    * @param idcreatetime
+    * @param checklist
+     * @Date  2020/9/22
+     * @Param 
+     * @return 
+     **/
     @RequestMapping("/execlist")
     public ResponseResult responseResult(Integer num,String pai,String idcreatetime,String checklist){
         String str = "";
@@ -309,35 +323,74 @@ public class BaseUserController {
                 str1+=split[i]+",";
             }
         }
-        if(str.contains("rname")){
-            String ll = "";
-            String[] split1 = str.split(",");
-            for (int i=0;i<split1.length;i++){
-                if(split1[i].equals("rname")){
-                    System.out.println("包含了");
-                }else{
-                    ll+=split1[i]+",";
-                }
+        if(str!=null&&!str.equals("")&&str1!=null&&!str1.equals("")){
+            if(str.contains("rname")){
+                String ll = "";
+                String[] split1 = str.split(",");
+                for (int i=0;i<split1.length;i++){
+                    if(split1[i].equals("rname")){
+                        System.out.println("包含了");
+                    }else{
+                        ll+=split1[i]+",";
+                    }
 
+                }
+                System.out.println(ll);
+                getlist=iBaseUserService.getlist(pai,idcreatetime,num,ll,"rname");
+            }else{
+                int length = str.length();
+                String substring = str.substring(0, length - 1);
+                getlist= iBaseUserService.getlist(pai,idcreatetime, num, substring,null);
             }
-            System.out.println(ll);
-            getlist=iBaseUserService.getlist(pai,idcreatetime,num,ll,"rname");
-        }else{
-            int length = str.length();
-            String substring = str.substring(0, length - 1);
-            getlist= iBaseUserService.getlist(pai,idcreatetime, num, substring,null);
-        }
-        boolean getname = feignMapper.getname(str, str1);
-        System.out.println(getname);
-        if(getname){
+            boolean getname = feignMapper.getname(str, str1);
+            System.out.println(getname);
+            if(getname){
+                boolean getlistexec = feignMapper.getlistexec(getlist);
+                if(getlistexec){
+                    responseResult.setCode(1006);
+                }
+            }
+        }else {
+            getlist= iBaseUserService.list();
             boolean getlistexec = feignMapper.getlistexec(getlist);
             if(getlistexec){
                 responseResult.setCode(1006);
             }
         }
 
+
+
         return responseResult;
 
+    }
+
+
+    /**
+     * @Author 袁成龙
+     * @Description //TODO exec的导入实现批量添加
+     * @Date 21:14 2020/9/22
+     * @Param 
+     * @return 
+     **/
+    @RequestMapping("execimport")
+    public ResponseResult add(MultipartFile file){
+        //对应excel模板内容总行数
+        int excelTemplateRowNum = 2;
+        //以excel模板某行作为JSON对象键
+        int jsonRowNum = 1;
+        JSONArray array = new JSONArray();
+        try {
+            array = new ParseExcelToJSONArrayUtil().parseExcelFile(file, excelTemplateRowNum, jsonRowNum);
+            System.out.println(array);
+            List<BaseUser> list = JSON.parseArray(array.toString(), BaseUser.class);
+            boolean b = iBaseUserService.saveBatch(list);
+            if(b){
+                responseResult.setCode(1006);
+            }
+        } catch (Exception e) {
+
+        }
+        return responseResult;
     }
 
 
