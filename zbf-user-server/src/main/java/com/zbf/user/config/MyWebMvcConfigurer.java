@@ -5,6 +5,13 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * @Author 袁成龙
+ * @Description //TODO 配置本地的一些图片上传的访问路径
+ * @Date 19:05 2020/9/23
+ * @Param 
+ * @return 
+ **/
 @Configuration
 public class MyWebMvcConfigurer implements WebMvcConfigurer {
     /**

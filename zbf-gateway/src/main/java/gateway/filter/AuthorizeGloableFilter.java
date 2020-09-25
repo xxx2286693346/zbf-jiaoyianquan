@@ -67,6 +67,7 @@ public class AuthorizeGloableFilter implements GlobalFilter, Ordered {
         }
         //获取请求头中的Token串
         List<String> tokenList = exchange.getRequest().getHeaders().get("token");
+        System.out.println(tokenList.get(0));
         //检测是否有Token信息
         Mono<Void> hasToken = this.hasToken(tokenList, exchange);
         if (hasToken != null) {
@@ -152,51 +153,57 @@ public class AuthorizeGloableFilter implements GlobalFilter, Ordered {
         System.out.println("111111111111111" + exchange);
         System.out.println("222222222222222222" + chain);
 
-        List<String> tokenList = exchange.getRequest().getHeaders().get("token");
+
+        
+       /* List<String> tokenList = exchange.getRequest().getHeaders().get("token");
 //        String s = tokenList.get(0);
 //        System.out.println("token0===="+tokenList.get(0));
         if (tokenList != null && tokenList.size() > 0) {
             if (tokenList.size() > 0 && !tokenList.get(0).equals("") && !tokenList.get(0).equals("null")) {
-                JSONObject jsonObject = JwtUtils.decodeJwtTocken(tokenList.get(0));
-                System.out.println("3432432!!!!!!====" + jsonObject);
-                //获取用户的登录名信息
-                String loginName = jsonObject.getString("info");
-                System.out.println("获取用户名信息!!!!!!" + loginName);
-                //根据登录名获取用户的角色权限
-                Object uinfo = redisTemplate.opsForHash().get("user-auth", loginName);
-                System.out.println("info!!!!!!=" + uinfo);
-                System.out.println("info!!!!!!=-----" + uinfo.toString());
-                String userRole = uinfo.toString();
-                System.out.println("uuii+++" + userRole);
-                //解析出当前用户所拥有的角色权限
-                JSONObject jsonObject1 = JSON.parseObject(userRole);
-                System.out.println("iiiiii----" + jsonObject1);
-                JSONArray authorities = JSON.parseArray(jsonObject1.get("authorities").toString());
-                System.out.println("iiiiii))))))----" + authorities);
-                String str = "ROLE_ADMIN";
-                StringBuffer stringBuffer = null;
-                for (JSONObject obj : authorities.toJavaList(JSONObject.class)) {
-                    if (str.equals(obj.getString("authority"))) {
-                        System.out.println("===)))---");
-                        return chain.filter(exchange);
+
+                Mono<Void> authorized = this.authorized(tokenList.get(0), exchange, chain);
+                if(authorized!=null){
+                    JSONObject jsonObject = JwtUtils.decodeJwtTocken(tokenList.get(0));
+                    System.out.println("3432432!!!!!!====" + jsonObject);
+                    //获取用户的登录名信息
+                    String loginName = jsonObject.getString("info");
+                    System.out.println("获取用户名信息!!!!!!" + loginName);
+                    //根据登录名获取用户的角色权限
+                    Object uinfo = redisTemplate.opsForHash().get("user-auth", loginName);
+                    System.out.println("info!!!!!!=" + uinfo);
+                    System.out.println("info!!!!!!=-----" + uinfo.toString());
+                    String userRole = uinfo.toString();
+                    System.out.println("uuii+++" + userRole);
+                    //解析出当前用户所拥有的角色权限
+                    JSONObject jsonObject1 = JSON.parseObject(userRole);
+                    System.out.println("iiiiii----" + jsonObject1);
+                    JSONArray authorities = JSON.parseArray(jsonObject1.get("authorities").toString());
+                    System.out.println("iiiiii))))))----" + authorities);
+                    String str = "ROLE_ADMIN";
+                    StringBuffer stringBuffer = null;
+                    for (JSONObject obj : authorities.toJavaList(JSONObject.class)) {
+                        if (str.equals(obj.getString("authority"))) {
+                            System.out.println("===)))---");
+                            return chain.filter(exchange);
+                        }
                     }
                 }
-            }
-            else {
-                //获取当前请求的URL信息.
-                String currentAccessUrl = getCurrentAccessUrl(exchange);
-                System.out.println("uuuu" + currentAccessUrl);
-                //判断当前请求的路径在不在访问的范围
-                boolean isNoNeedLogin = noNeedLoginPath.containsKey(currentAccessUrl);
-                System.out.println("666" + isNoNeedLogin);
-                if (isNoNeedLogin) {
-                    System.out.println("===================");
-                    //如果当前访问的路径不在权限控制的范围，则直接通过过滤
-                    return chain.filter(exchange);
-                } else {
-                    return null;
+                else {
+                    //获取当前请求的URL信息.
+                    String currentAccessUrl = getCurrentAccessUrl(exchange);
+                    System.out.println("uuuu" + currentAccessUrl);
+                    //判断当前请求的路径在不在访问的范围
+                    boolean isNoNeedLogin = noNeedLoginPath.containsKey(currentAccessUrl);
+                    System.out.println("666" + isNoNeedLogin);
+                    if (isNoNeedLogin) {
+                        System.out.println("===================");
+                        //如果当前访问的路径不在权限控制的范围，则直接通过过滤
+                        return chain.filter(exchange);
+                    } else {
+                        return null;
+                    }
                 }
-            }
+                }
         } else {
             //获取当前请求的URL信息.
             String currentAccessUrl = getCurrentAccessUrl(exchange);
@@ -212,7 +219,19 @@ public class AuthorizeGloableFilter implements GlobalFilter, Ordered {
                 return null;
             }
         }
-        return null;
+        return null;*/
+
+
+        //获取当前请求的URL信息
+        String currentAccessUrl = getCurrentAccessUrl(exchange);
+        //判断当前请求的路径在不在访问的范围
+        boolean isNoNeedLogin = noNeedLoginPath.containsKey(currentAccessUrl);
+        if(isNoNeedLogin){
+            //如果当前访问的路径不在权限控制的范围，则直接通过过滤
+            return chain.filter(exchange);
+        }else{
+            return null;
+        }
     }
 
     /**
@@ -310,6 +329,10 @@ public class AuthorizeGloableFilter implements GlobalFilter, Ordered {
         for (JSONObject obj : authorities.toJavaList(JSONObject.class)) {
             stringBuffer = new StringBuffer();
             stringBuffer.append(obj.getString("authority")).append(":").append(currentAccessUrl);
+            if(obj.getString("authority").equals("ROLE_ADMIN")){
+                Mono<Void> voidMono = updateTokenForDelay(loginName, exchange, chain);
+                return voidMono;
+            }
             Boolean menuRole = redisTemplate.opsForHash().hasKey("menuRole", stringBuffer.toString());
             if (menuRole) {
                 //如果拥有该权限角色，更新Token,并返回新的Token

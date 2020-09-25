@@ -59,6 +59,9 @@ public class ResponseResult {
     private Long[] menuIds;
 
 
-
+    /**
+     * 记录cookie的值
+     * */
+    private String cookiee;
 
 }

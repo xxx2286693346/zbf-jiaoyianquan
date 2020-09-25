@@ -32,6 +32,10 @@ import java.util.regex.Pattern;
 @Component
 public class MyLoginSuccessHandler implements AuthenticationSuccessHandler {
 
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
 
@@ -45,12 +49,22 @@ public class MyLoginSuccessHandler implements AuthenticationSuccessHandler {
         responseResult.setCode(AllStatusEnum.LOGIN_SUCCESS.getCode());
         responseResult.setUserInfo(authentication.getPrincipal().toString());
         //将用户名信息生成Token
+        String s1 = redisTemplate.opsForValue().get("cookie");
+        System.out.println("_____++______"+s1);
+        //把多余的cookie值取出来设置过期时间
+        if(s1!=null&&s1.equals("true")&&!s1.equals("")&&s1!="null"){
+            JwtUtils.generateTokencookie(s1);
+            //删除cookie
+            redisTemplate.delete("cookie");
+        }
         String token = JwtUtils.generateToken(authentication.getPrincipal().toString());
         System.out.println(token);
+
+
         //如果过期的话这个解析的过程会报错 ExpiredJwtException，正确解析的话会得到用户的登录名
         httpServletResponse.setHeader("token",token);
         responseResult.setToken(token);
-        // httpServletResponse.setHeader("token",token);
+        httpServletResponse.setHeader("token",token);
         PrintWriter writer = httpServletResponse.getWriter();
         writer.print(JSON.toJSONString(responseResult));
         writer.flush();

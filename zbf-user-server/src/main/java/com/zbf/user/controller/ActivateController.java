@@ -33,14 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * @description:
- * @projectName:zbf-jiaoyianquan
- * @see:com.zbf.user.controller
- * @author:袁成龙
- * @createTime:2020/9/13 19:36
- * @version:1.0
- */
+
 @RestController
 public class ActivateController{
 
@@ -60,6 +53,7 @@ public class ActivateController{
     private static String access = "minioadmin";
     private static String secret = "minioadmin";
     private static String bucket = "two";
+    private static String email="";
 
 
 
@@ -73,6 +67,7 @@ public class ActivateController{
      **/
     @RequestMapping("/Add")
     public ResponseResult add(@RequestBody BaseUser baseUser){
+        email=baseUser.getEmail();
         int i1 =1;
         int random = RandomUtil.random(1, 10000000);
         System.out.println(random);
@@ -145,7 +140,8 @@ public class ActivateController{
                         baseUser.getTel(),
                         baseUser.getSex(),
                         baseUser.getEmail(),
-                        s,0);
+                        s,0,
+                        LocalDateTime.now());
                 boolean save = iBaseUserService.save(user);
                 //如果执行成功
                 if(save){
@@ -157,7 +153,7 @@ public class ActivateController{
                     Thread thread = new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            MailQQUtils.sendMessage("2286693346@qq.com",getActivate(actipaht,1*60*1000L,baseUser.getLoginName()),"NBA湖人招募信息","");
+                            MailQQUtils.sendMessage(baseUser.getEmail(),getActivate(actipaht,1*60*1000L,baseUser.getLoginName()),"NBA湖人招募信息","");
                         }
                     });
                     thread.start();
@@ -380,7 +376,7 @@ public class ActivateController{
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                MailQQUtils.sendMessage("2286693346@qq.com",getActivate(actipaht,1*60*3000L,loginName),"NBA湖人招募信息","");
+                MailQQUtils.sendMessage(email,getActivate(actipaht,1*60*3000L,loginName),"NBA湖人招募信息","");
             }
         });
         thread.start();

@@ -39,7 +39,7 @@ public class BaseRoleController {
 
     /**
      * @Author 袁成龙
-     * @Description //TODO * @param roleName
+     * @Description //TODO *根据角色名获取所有的角色信息
      * @Date 21:32 2020/9/22
      * @Param 
      * @return 

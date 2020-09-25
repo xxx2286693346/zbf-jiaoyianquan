@@ -80,7 +80,7 @@ public class BaseUser implements Serializable {
     @TableField(exist = false)
     private String rname;
 
-    public BaseUser(Long id, String userName, String loginName, String passWord, String tel, SexEnum sex, String email, String salt,Integer status) {
+    public BaseUser(Long id, String userName, String loginName, String passWord, String tel, SexEnum sex, String email, String salt,Integer status,LocalDateTime createTime) {
         this.id = id;
         this.userName = userName;
         this.loginName = loginName;
@@ -90,6 +90,7 @@ public class BaseUser implements Serializable {
         this.email = email;
         this.salt = salt;
         this.status=status;
+        this.createTime=createTime;
     }
 
 

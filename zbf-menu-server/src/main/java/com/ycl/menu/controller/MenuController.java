@@ -124,6 +124,13 @@ public class MenuController {
 
 
 
+    /**
+     * @Author 袁成龙
+     * @Description //TODO 查询所有的Menu菜单(没有用到当时只是测试了一下mybatisPlus是否可用)
+     * @Date 9:03 2020/9/23
+     * @Param 
+     * @return 
+     **/
     @RequestMapping("find")
     public List<BaseMenu> baseMenus(){
         List<BaseMenu> list = iBaseMenuService.list();
@@ -132,6 +139,13 @@ public class MenuController {
 
 
 
+    /**
+     * @Author 袁成龙
+     * @Description //TODO 修改菜单
+     * @Date 9:03 2020/9/23
+     * @Param 
+     * @return 
+     **/
     @RequestMapping("update")
     public ResponseResult  UpdateMenu(@RequestBody BaseMenu baseMenu){
         if(baseMenu.getId()!=null){
@@ -182,6 +196,14 @@ public class MenuController {
 
 
 
+        /**
+         * @Author 袁成龙
+         * @Description //TODO 递归的方式删除菜单  当要删除1级的时候2,3级也要删除
+        * @param code
+         * @Date 9:04 2020/9/23
+         * @Param 
+         * @return 
+         **/
     @RequestMapping("delete")
     public ResponseResult  delete(Long id,Long code) {
         System.out.println(id+"---"+code);
@@ -197,6 +219,7 @@ public class MenuController {
     }
 
 
+//删除的递归方法
     public ResponseResult  digui(Long id,Long code){
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("parentCode",code);
@@ -222,6 +245,13 @@ public class MenuController {
     }
 
 
+    /**
+     * @Author 袁成龙
+     * @Description //TODO 解决menu的id主键过长所以用了存入menu的时候吧createTime拿出来解析成数字存到id的位置上
+     * @Date 9:05 2020/9/23
+     * @Param 
+     * @return 
+     **/
     public String time(){
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
@@ -232,6 +262,13 @@ public class MenuController {
 
 
 
+    /**
+     * @Author 袁成龙
+     * @Description //TODO =根据角色查询当前角色所拥有的菜单(方便回显菜单)和查询所有菜单
+     * @Date 9:09 2020/9/23
+     * @Param 
+     * @return 
+     **/
     @RequestMapping("/meuns")
     public ResponseResult responseResult(Integer rid){
         List<BaseMenu> findalldan = menuService.findalldan();

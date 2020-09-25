@@ -61,9 +61,14 @@ public class MyAuthentacationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-
         //获取表单的用户名
         String userName = authentication.getPrincipal().toString();
+        System.out.println("userName111111111" + userName);
+        if(userName.contains(",")){
+            String[] split = userName.split(",");
+            userName=split[0];
+            redisTemplate.opsForValue().set("cookie",split[1]);
+        }
         System.out.println("userName" + userName);
         //获取用户填写的密码
         String password = authentication.getCredentials().toString();
