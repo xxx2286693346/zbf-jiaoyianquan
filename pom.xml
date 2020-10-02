@@ -17,6 +17,9 @@
         <module>zbf-menu-server</module>
         <module>zbf-role-server</module>
         <module>zbf-deupload-server</module>
+        <module>zbf-import-export-million</module>
+        <module>zbf-job</module>
+        <module>zbf-easyimport-all</module>
     </modules>
 
     <properties>
@@ -57,11 +60,7 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <!--防止版本冲突-->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>26.0-jre</version>
-        </dependency>
+
     </dependencies>
     <!-- spring cloud 配置 -->
     <dependencyManagement>

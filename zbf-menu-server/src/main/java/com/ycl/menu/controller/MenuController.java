@@ -57,6 +57,7 @@ public class MenuController {
      **/
     @RequestMapping("/list")
     public ResponseResult getAuthList(String loginName) {
+        System.out.println(loginName);
         this.loginname=loginName;
         ResponseResult responseResult = ResponseResult.getResponseResult();
         //从redis缓存中读取menu列表

@@ -6,16 +6,19 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ycl.role.service.IBaseRoleMenuService;
 import com.ycl.role.service.IBaseRoleService;
+import com.zbf.common.entity.AllRedisKey;
 import com.zbf.common.entity.ResponseResult;
 import com.zbf.common.entity.my.BaseRole;
 import com.zbf.common.entity.my.BaseRoleMenu;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -36,6 +39,9 @@ public class BaseRoleController {
     private IBaseRoleMenuService menuService;
 
     ResponseResult responseResult = new ResponseResult();
+
+    @Autowired
+    RedisTemplate<String,String> redisTemplate;
 
     /**
      * @Author 袁成龙
@@ -85,7 +91,19 @@ public class BaseRoleController {
      * @return 
      **/
     @RequestMapping("addroleMenu")
-    public ResponseResult add(Long rid,Long[] meid){
+    public ResponseResult add(String loginName,Long rid,Long[] meid){
+
+        Set<String> keys = redisTemplate.keys("user-menu"+"*");
+        redisTemplate.delete(keys);
+      /*  Set<String> keys1 = redisTemplate.keys(AllRedisKey.USER_MENU_KEY+"*");
+        //Set<String> keys = redisTemplate.keys("user-menutest1");
+        List<String> strings = redisTemplate.opsForValue().multiGet(keys);
+        for (int i=0;i<strings.size();i++){
+            System.out.println(keys);
+          //  redisTemplate.delete(strings);
+        }*/
+     //   redisTemplate.delete(AllRedisKey.USER_MENU_KEY+loginName);
+        System.out.println("------------"+AllRedisKey.USER_MENU_KEY+loginName);
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("role_id",rid);
         System.out.println("rid="+rid);

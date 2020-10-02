@@ -63,6 +63,17 @@ spring:
                #- name: Hystrix
                #args:
                #name: fallbackdd
+               #fallbackUri: 'forward:/fallback'  -
+         - id: zbf-job-server
+           uri: lb://zbf-job-server
+           predicates:
+           - Path=/job/**
+           filters:
+               #表示去掉api前缀
+               - StripPrefix=1
+               #- name: Hystrix
+               #args:
+               #name: fallbackdd
                #fallbackUri: 'forward:/fallback'
 hystrix.command.fallbackdd.execution.isolation.thread.timeoutInMilliseconds: 50000
 

@@ -325,8 +325,9 @@ public class BaseUserController {
      * @Param
      */
     @RequestMapping("updateStatus")
-    public ResponseResult result(Integer status, Integer id) {
-        boolean updatestatus = iBaseUserService.updatestatus(status, id);
+    public ResponseResult result(Integer status, String id) {
+        boolean updatestatus = iBaseUserService.updatestatus(status, Long.valueOf(id).longValue());
+        System.out.println(updatestatus);
         if (updatestatus) {
             responseResult.setCode(ResponseResultEnum.SECCESS.getCode());
             return responseResult;

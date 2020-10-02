@@ -8,7 +8,6 @@ import com.zbf.common.entity.AllRedisKey;
 import com.zbf.common.entity.ResponseResult;
 import com.zbf.common.entity.ResponseResultEnum;
 import com.zbf.common.utils.Md5;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationProvider;

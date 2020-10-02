@@ -46,7 +46,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUser> i
     }
 
     @Override
-    public boolean updatestatus(Integer status,Integer id) {
+    public boolean updatestatus(Integer status,Long id) {
         return baseUserMapper.updatestatus(status,id);
     }
 

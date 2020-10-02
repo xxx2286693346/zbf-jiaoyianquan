@@ -1,9 +1,11 @@
 package com.zbf.common.entity.my;
 
+import com.alibaba.excel.annotation.ExcelIgnore;
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.google.common.annotations.VisibleForTesting;
+//import com.google.common.annotations.VisibleForTesting;
 import com.zbf.common.entity.enums.SexEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,54 +32,70 @@ public class BaseUser implements Serializable {
      * 用户表
      */
     @TableId("id")
+    @ExcelProperty("id")
     private Long id;
 
     @TableField("version")
+    @ExcelProperty("版本")
     private Integer version;
 
     //用户名
     @TableField("userName")
+    @ExcelProperty("用户名")
     private String userName;
 
     //登录名
     @TableField("loginName")
+    @ExcelProperty("登录名")
     private String loginName;
 
     //密码
     @TableField("passWord")
+    @ExcelProperty("密码")
     private String passWord;
 
     @TableField("tel")
+    @ExcelProperty("电话")
     private String tel;
 
     //版本
     @TableField("buMen")
+    @ExcelProperty("部门")
     private String buMen;
 
     @TableField("salt")
+    @ExcelProperty("盐")
     private String salt;
 
     @TableField("createTime")
+    @ExcelProperty("创建时间")
     private LocalDateTime createTime;
 
     @TableField("updateTime")
+    @ExcelProperty("修改时间")
     private LocalDateTime updateTime;
 
     //性别
     @TableField("sex")
+    @ExcelProperty("性别")
     private SexEnum sex;
+
 
     //邮箱
     @TableField("email")
+    @ExcelProperty("邮箱")
     private String email;
 
     @TableField("status")
+    @ExcelProperty("激活状态")
     private Integer status;
 
     @TableField("image")
+    @ExcelProperty("图片")
     private String image;
 
     @TableField(exist = false)
+    @ExcelIgnore
     private String rname;
 
     public BaseUser(Long id, String userName, String loginName, String passWord, String tel, SexEnum sex, String email, String salt,Integer status,LocalDateTime createTime) {

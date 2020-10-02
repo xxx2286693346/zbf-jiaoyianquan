@@ -6,7 +6,6 @@ import com.zbf.auth.mapper.UserDao;
 import com.zbf.common.entity.ResponseResult;
 import com.zbf.common.exception.AllStatusEnum;
 import com.zbf.common.utils.JwtUtils;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;

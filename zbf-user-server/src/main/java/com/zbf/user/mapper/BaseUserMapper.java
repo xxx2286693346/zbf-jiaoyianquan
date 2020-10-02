@@ -30,7 +30,7 @@ public interface BaseUserMapper extends BaseMapper<BaseUser> {
 
     BaseUser finloginName(@Param("loginName") String loginName);
 
-    boolean updatestatus(@Param("status") Integer status,@Param("id") Integer id);
+    boolean updatestatus(@Param("status") Integer status,@Param("id") Long id);
 
     List<BaseUser> getlist(@Param("pai")String pai,@Param("ord") String ord,@Param("limi") Integer limi,@Param("names")String names,@Param("rname")String rname);
 

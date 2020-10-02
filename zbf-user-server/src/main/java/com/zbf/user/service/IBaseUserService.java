@@ -26,7 +26,7 @@ public interface IBaseUserService extends IService<BaseUser> {
 
     BaseUser finloginName( String loginName);
 
-    boolean updatestatus(Integer status,Integer id);
+    boolean updatestatus(Integer status,Long id);
 
     List<BaseUser> getlist(@Param("pai")String pai,String ord, @Param("limi") Integer limi, @Param("names")String names, @Param("rname")String rname);
 

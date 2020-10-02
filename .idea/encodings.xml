@@ -5,7 +5,10 @@
     <file url="file://$PROJECT_DIR$/zbf-auth-core" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zbf-common" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zbf-deupload-server" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/zbf-easyimport-all" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zbf-gateway" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/zbf-import-export-million" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/zbf-job" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zbf-menu-server" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zbf-role-server" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zbf-user-server" charset="UTF-8" />

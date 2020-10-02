@@ -23,7 +23,7 @@ public class JwtUtils {
     /**
      * Jwt的加密串的过期时间，这里配置是30分钟
      */
-    private static long timeout=1*60*1000;
+    private static long timeout=2*60*1000;
 
     //设置用来接收cookie判断是否需要设置cookie时间
     private static String bo;
@@ -86,7 +86,8 @@ public class JwtUtils {
             bo="";
             return compact;
         }else{
-            timeout=1*60*1000;
+            System.out.println("在加2分钟");
+            timeout=30*60*1000L;
             Map<String, Object> map = new HashMap<String,Object>();
             //用户信息
             map.put("info", userinfo);

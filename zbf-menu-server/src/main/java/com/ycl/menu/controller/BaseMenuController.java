@@ -24,7 +24,6 @@ import java.util.List;
  * @since 2020-09-16
  */
 @RestController
-
 public class BaseMenuController {
 
     @Autowired
